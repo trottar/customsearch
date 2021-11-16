@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-16 10:56:48 trottar"
+# Time-stamp: "2021-11-16 11:52:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -16,15 +16,17 @@ import googleapiclient.discovery
 from urllib.parse import parse_qs, urlparse
 import urllib
 import json
+import os
 
 def import_playlist(url):
 
     #extract playlist id from url
     query = parse_qs(urlparse(url).query, keep_blank_values=True)
     playlist_id = query["list"][0]
-
+    developerKey = os.getenv("youtube_api")
+    
     print(f'get all playlist items links from {playlist_id}')
-    youtube = googleapiclient.discovery.build("youtube", "v3", developerKey = "AIzaSyDRwEq6u4k_9RXPHuvaFCtNUD-8tzlITgA")
+    youtube = googleapiclient.discovery.build("youtube", "v3", developerKey = developerKey)
 
     request = youtube.playlistItems().list(
         part = "snippet",
@@ -77,7 +79,7 @@ def import_playlist(url):
         text = ''
         for d in transcript:
             text += d['text']
-        videoDict.update({"transcript" : text})
+        videoDict.update({"transcript" : text.strip("\n")})
         videoDict.update({"type" : "youtube"})
         videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
         df = df.append(videoDict,ignore_index=True)

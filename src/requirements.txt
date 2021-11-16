@@ -3,3 +3,4 @@ youtube_transcript_api
 google-api-python-client
 pandas
 chrome-bookmarks
+beautifulsoup4

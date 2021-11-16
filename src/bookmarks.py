@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-16 11:03:34 trottar"
+# Time-stamp: "2021-11-16 11:51:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -12,14 +12,29 @@
 #
 import pandas as pd
 import chrome_bookmarks
+from urllib.parse import parse_qs, urlparse
+import urllib
+import requests
+from bs4 import BeautifulSoup
 
 bookmarkDict = {}
 df = pd.DataFrame()
 for url in chrome_bookmarks.urls:
-    print(url.url, url.name)
     bookmarkDict.update({"title" : url.name})
     bookmarkDict.update({"url" : url.url})
-    videoDict.update({"type" : "bookmark"})
+    bookmarkDict.update({"type" : "bookmark"})
+    bookmarkDict = {k : bookmarkDict[k] for k in sorted(bookmarkDict.keys())}
+    df = df.append(bookmarkDict,ignore_index=True)
+for url in df['url']:
+    try:
+        with urllib.request.urlopen(url) as response:
+            html = response.read()
+        #data = requests.get(url).text
+    except:
+        continue
+    soup = BeautifulSoup(html, "html.parser")
+    text = soup.get_text()
+    bookmarkDict.update({"transcript" : text.strip("\n")})
     bookmarkDict = {k : bookmarkDict[k] for k in sorted(bookmarkDict.keys())}
     df = df.append(bookmarkDict,ignore_index=True)
 print(df)
