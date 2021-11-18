@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-16 11:52:30 trottar"
+# Time-stamp: "2021-11-18 02:42:02 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -64,7 +64,7 @@ def import_playlist(url):
             if e.code in (..., 403, ...):
                 continue
         title = data['title']
-        videoDict.update({"title" : title})
+        videoDict.update({"title" : title.lower()})
         videoDict.update({"url" : v_url})
         videoDict.update({"url_id" : v_id})
         videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
@@ -79,7 +79,8 @@ def import_playlist(url):
         text = ''
         for d in transcript:
             text += d['text']
-        videoDict.update({"transcript" : text.strip("\n")})
+        print(' '.join([line.strip().lower() for line in text.splitlines()]),"\n\n")
+        videoDict.update({"transcript" : ' '.join([line.strip().lower() for line in text.splitlines()])})
         videoDict.update({"type" : "youtube"})
         videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
         df = df.append(videoDict,ignore_index=True)
