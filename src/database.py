@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 10:00:27 trottar"
+# Time-stamp: "2021-11-18 13:26:01 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,6 +15,14 @@ import os
 
 import youtube
 import bookmarks
+
+'''
+!!!!!!!!!!!!!!
+Need to improve these three scripts (database, youtube, bookmarks) so that they
+check if a bookmark/video already exists plus add in some progress bars. Also
+need tp add a list input for running many bookmarks/playlists
+
+'''
 
 url = 'https://www.youtube.com/playlist?list=PLW5jnpyxgQHX7i63VJ1LJEgHFHcL3G_QC'
 bm_folder = 'Must Read'

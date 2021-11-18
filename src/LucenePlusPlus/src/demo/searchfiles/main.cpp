@@ -89,7 +89,7 @@ static void doPagingSearch(const SearcherPtr& searcher, const QueryPtr& query, i
             DocumentPtr doc = searcher->doc(hits[i]->doc);
             String path = doc->get(L"path");
             if (!path.empty()) {
-                std::wcout << StringUtils::toString(i + 1) + L". " << path << L"\n";
+	        std::wcout << StringUtils::toString(i + 1) + L". " << path << L" score=" << hits[i]->score << L"\n";
                 String title = doc->get(L"title");
                 if (!title.empty()) {
                     std::wcout << L"   Title: " << doc->get(L"title") << L"\n";

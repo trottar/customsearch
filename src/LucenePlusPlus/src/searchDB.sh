@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 10:17:08 trottar"
+# Time-stamp: "2021-11-18 11:13:37 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,7 +15,8 @@ KEYWORD=$1
 
 DB="../../../database/"
 
-cd ../build/
+#cd ../build/ # relative to bash script
+cd LucenePlusPlus/build/ # relative to python script
 
 echo "Indexing database files..."
 echo
@@ -27,3 +28,4 @@ echo
 ./src/demo/searchfiles/searchfiles -index ${DB}<<EndofSearch
 $1
 EndofSearch
+

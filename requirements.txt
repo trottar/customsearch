@@ -4,5 +4,5 @@ google-api-python-client
 pandas
 chrome-bookmarks
 beautifulsoup4
-pyqt5
+pyqt5==5.14.0
 openpyxl
