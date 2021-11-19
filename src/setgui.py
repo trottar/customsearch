@@ -3,19 +3,25 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 22:43:00 trottar"
+# Time-stamp: "2021-11-19 15:31:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
 #
 # Copyright (c) trottar
 #
+import pandas as pd
+import webbrowser as web
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from bs4 import BeautifulSoup
+from urllib.parse import parse_qs, urlparse
+import urllib.request
+import json
 
-from random import randint
+import searchfiles
 
 # Set to False - Standard docking of widgets around the main content area
 # Set to True - Sub MainWindows each with their own private docking 
@@ -71,7 +77,7 @@ class test():
                     sub = QMainWindow()
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
-                        
+
                     if _DOCK_COUNT == 3 or _DOCK_COUNT == 4:
                         url = 'https://www.google.com'
                         url_title = 'Google'
@@ -79,12 +85,9 @@ class test():
                         label.setOpenExternalLinks(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(25)
-                    #else:
-                        #label = QLabel("%s %d content area" % (name, _DOCK_COUNT), sub)
-                        #label.setMinimumHeight(25)
-                        #label.setStyleSheet("background-color: rgb(%d, %d, %d)" % color)
                         sub.setCentralWidget(label)
 
+                    
                     if _DOCK_COUNT == 1:
                         layout = QFormLayout()
                         le = QLineEdit()
@@ -92,8 +95,31 @@ class test():
 
                         def onClick():
                             u_inp = le.text()
-                            url_title = u_inp
-                            print(u_inp)
+                            results = searchfiles.searchfiles(u_inp)
+                            listWidget = QListWidget()
+                            print(results['url'][0].to_string(index=False))
+                            for i,row in results.iterrows():
+                                text = row['url'].to_string(index=False)
+                                print(text)
+                                try:
+                                    with urllib.request.urlopen(text) as response:
+                                        response_text = response.read()
+                                        data = json.loads(response_text.decode())
+                                except urllib.error.HTTPError as e:
+                                    if e.code in (..., 403, ...):
+                                        continue
+                                soup = BeautifulSoup(data['html'],"html.parser")
+                                url = soup.find("iframe")["src"]
+                                url_title = row['title'].to_string(index=False)
+                                listWidgetItem = QListWidgetItem("{}".format(url_title))
+                                listWidgetItem.setToolTip("<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
+                                listWidget.addItem(listWidgetItem)
+                                def OpenLink(self):
+                                    web.open(url)
+                            listWidget.itemDoubleClicked.connect(OpenLink)
+                            listWidget.setWordWrap(True);
+                            mainWindow.setCentralWidget(listWidget)
+                            return results
 
                         le.returnPressed.connect(onClick)
 
@@ -111,13 +137,14 @@ class test():
                         cb.addItems(["Coding", "Thesis", "Misc"])
                         cb.currentIndexChanged.connect(selectionchange)
                         layout.addRow(le,cb)
-                        dock = QDockWidget("%s %d title bar" % (name, _DOCK_COUNT))
+                        dock = QDockWidget("Search keyword below")
                         dock.setMinimumHeight(25)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
                         dock.setWidget(dockedWidget)
                         dockedWidget.setLayout(layout)
+                        
                     elif _DOCK_COUNT == 2:
                         dock = QDockWidget("")
                         #dock.setMaximumHeight(25)
@@ -131,7 +158,10 @@ class test():
                             addDocks(sub, "Sub Dock", subDocks=False)
                             window.addDockWidget(pos, dock)
                     else:
-                        dock = QDockWidget("%s %d title bar" % (name, _DOCK_COUNT))
+                        if _DOCK_COUNT == 3:
+                            dock = QDockWidget("Progress bar")
+                        if _DOCK_COUNT == 4:
+                            dock = QDockWidget("Debug window")
                         #dock.setMaximumHeight(25)
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(300)
@@ -143,7 +173,7 @@ class test():
                             addDocks(sub, "Sub Dock", subDocks=False)
                             window.addDockWidget(pos, dock)
 
-        addDocks(mainWindow, "Main Dock")
+        addDocks(mainWindow, "Custom Search")
 
         mainWindow.show()
         mainWindow.raise_()

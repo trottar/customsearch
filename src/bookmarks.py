@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 07:39:50 trottar"
+# Time-stamp: "2021-11-19 14:19:51 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,6 +15,8 @@ import chrome_bookmarks
 from urllib.parse import parse_qs, urlparse
 import urllib
 from bs4 import BeautifulSoup
+
+pd.set_option('display.max_colwidth', None)
 
 def import_bookmarks(inp_folder):
 

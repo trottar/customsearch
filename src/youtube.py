@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 02:42:02 trottar"
+# Time-stamp: "2021-11-19 15:01:05 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -17,6 +17,8 @@ from urllib.parse import parse_qs, urlparse
 import urllib
 import json
 import os
+
+pd.set_option('display.max_colwidth', None)
 
 def import_playlist(url):
 

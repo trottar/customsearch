@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 12:27:11 trottar"
+# Time-stamp: "2021-11-19 14:18:41 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -14,7 +14,9 @@ import pandas as pd
 import sys
 import subprocess
 
-keyword = sys.argv[1]
+#keyword = sys.argv[1]
+
+pd.set_option('display.max_colwidth', None)
 
 def searchfiles(keyword):
 
@@ -53,9 +55,10 @@ def searchfiles(keyword):
                 print("{} not found".format(f_name))
                 continue
             inp_f = dict(inp_f)
+            print(inp_f)
             df = df.append(inp_f,ignore_index=True)
         print("-"*70)
         print(df)
     return df
         
-searchfiles(keyword)
+#searchfiles(keyword)

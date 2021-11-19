@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 13:26:01 trottar"
+# Time-stamp: "2021-11-19 14:20:04 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,6 +15,8 @@ import os
 
 import youtube
 import bookmarks
+
+pd.set_option('display.max_colwidth', None)
 
 '''
 !!!!!!!!!!!!!!
