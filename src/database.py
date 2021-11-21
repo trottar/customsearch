@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-19 14:20:04 trottar"
+# Time-stamp: "2021-11-20 20:19:00 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -31,12 +31,16 @@ bm_folder = 'Must Read'
 #bm_folder = 'Interesting Articles'
 
 b_df = bookmarks.import_bookmarks(bm_folder)
-print(b_df.keys())
 y_df = youtube.import_playlist(url)
-print(y_df.keys())
+#print(b_df.keys())
+#print(y_df.keys())
+#print(len(b_df['title']))
+#print(len(y_df['title']))
 
-df = pd.concat([b_df,y_df], axis=0)
+df = pd.concat([b_df,y_df], ignore_index=True)
 df  = df.reindex(sorted(df.columns),axis=1)
+
+print("There were {} entries added to the database".format(len(df['title'])))
 
 out_f = '../database/search_database'
 

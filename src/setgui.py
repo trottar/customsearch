@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-19 15:31:30 trottar"
+# Time-stamp: "2021-11-20 17:01:47 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -97,27 +97,35 @@ class test():
                             u_inp = le.text()
                             results = searchfiles.searchfiles(u_inp)
                             listWidget = QListWidget()
-                            print(results['url'][0].to_string(index=False))
                             for i,row in results.iterrows():
                                 text = row['url'].to_string(index=False)
-                                print(text)
-                                try:
-                                    with urllib.request.urlopen(text) as response:
-                                        response_text = response.read()
-                                        data = json.loads(response_text.decode())
-                                except urllib.error.HTTPError as e:
-                                    if e.code in (..., 403, ...):
-                                        continue
-                                soup = BeautifulSoup(data['html'],"html.parser")
-                                url = soup.find("iframe")["src"]
-                                url_title = row['title'].to_string(index=False)
-                                listWidgetItem = QListWidgetItem("{}".format(url_title))
-                                listWidgetItem.setToolTip("<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
-                                listWidget.addItem(listWidgetItem)
-                                def OpenLink(self):
-                                    web.open(url)
-                            listWidget.itemDoubleClicked.connect(OpenLink)
-                            listWidget.setWordWrap(True);
+                                #print(text)
+                                if row['type'].to_string(index=False) == 'youtube':
+                                    try:
+                                        with urllib.request.urlopen(text) as response:
+                                            response_text = response.read()
+                                            data = json.loads(response_text.decode())
+                                    except urllib.error.HTTPError as e:
+                                        if e.code in (..., 403, ...):
+                                            continue
+                                    soup = BeautifulSoup(data['html'],"html.parser")
+                                    url = soup.find("iframe")["src"]
+                                    url_title = row['title'].to_string(index=False)
+                                    listWidgetItem = QListWidgetItem("{}".format(url_title))
+                                    listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                    listWidget.addItem(listWidgetItem)
+                                else:
+                                    url = row['url'].to_string(index=False)
+                                    url_title = row['title'].to_string(index=False)
+                                    listWidgetItem = QListWidgetItem("{}".format(url_title))
+                                    listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                    listWidget.addItem(listWidgetItem)
+                            def OpenLink(url):
+                                url = url.split('URL:')[1]
+                                print(url)
+                                web.open(url)
+                            listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem().toolTip()))
+                            listWidget.setWordWrap(True)
                             mainWindow.setCentralWidget(listWidget)
                             return results
 
@@ -159,7 +167,7 @@ class test():
                             window.addDockWidget(pos, dock)
                     else:
                         if _DOCK_COUNT == 3:
-                            dock = QDockWidget("Progress bar")
+                            dock = QDockWidget("Progress bar/Update database/Daily article/Useful links")
                         if _DOCK_COUNT == 4:
                             dock = QDockWidget("Debug window")
                         #dock.setMaximumHeight(25)

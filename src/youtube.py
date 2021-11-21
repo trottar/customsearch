@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-19 15:01:05 trottar"
+# Time-stamp: "2021-11-20 20:04:07 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,16 +18,20 @@ import urllib
 import json
 import os
 
+import tools
+
 pd.set_option('display.max_colwidth', None)
 
 def import_playlist(url):
 
+    print("Importing data for youtube playlist {}...".format(url))
+    
     #extract playlist id from url
     query = parse_qs(urlparse(url).query, keep_blank_values=True)
     playlist_id = query["list"][0]
     developerKey = os.getenv("youtube_api")
     
-    print(f'get all playlist items links from {playlist_id}')
+    #print(f'get all playlist items links from {playlist_id}')
     youtube = googleapiclient.discovery.build("youtube", "v3", developerKey = developerKey)
 
     request = youtube.playlistItems().list(
@@ -43,7 +47,7 @@ def import_playlist(url):
         playlist_items += response["items"]
         request = youtube.playlistItems().list_next(request, response)
 
-    print(f"total: {len(playlist_items)}")
+    #print(f"total: {len(playlist_items)}")
 
     pl_urls = [ 
         f'https://www.youtube.com/watch?v={t["snippet"]["resourceId"]["videoId"]}&list={playlist_id}&t=0s'
@@ -52,7 +56,7 @@ def import_playlist(url):
 
     videoDict = {}
     df = pd.DataFrame()
-    for v_url in pl_urls:
+    for i,v_url in enumerate(pl_urls):
         v_id=v_url.split('v=')[1].split('&list')[0]
         params = {"format": "json", "url": "https://www.youtube.com/watch?v=%s" % v_id}
         v_url = "https://www.youtube.com/oembed"
@@ -66,14 +70,11 @@ def import_playlist(url):
             if e.code in (..., 403, ...):
                 continue
         title = data['title']
+        #print("\t-> ",title)
         videoDict.update({"title" : title.lower()})
         videoDict.update({"url" : v_url})
-        videoDict.update({"url_id" : v_id})
-        videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
-        df = df.append(videoDict,ignore_index=True)
-
-    # Get list of transcript lines
-    for v_id in df['url_id']:
+        videoDict.update({"type" : "youtube"})
+        tools.progressBar(i, len(pl_urls)-1)
         try:
             transcript = YouTubeTranscriptApi.get_transcript(v_id)
         except:
@@ -81,12 +82,10 @@ def import_playlist(url):
         text = ''
         for d in transcript:
             text += d['text']
-        print(' '.join([line.strip().lower() for line in text.splitlines()]),"\n\n")
+        #print(' '.join([line.strip().lower() for line in text.splitlines()]),"\n\n")
         videoDict.update({"transcript" : ' '.join([line.strip().lower() for line in text.splitlines()])})
-        videoDict.update({"type" : "youtube"})
         videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
         df = df.append(videoDict,ignore_index=True)
-        
-    df.drop("url_id",axis=1,inplace=True)
+    print("-"*70)        
     
     return df

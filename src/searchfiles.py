@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-19 14:18:41 trottar"
+# Time-stamp: "2021-11-20 13:36:17 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -55,10 +55,9 @@ def searchfiles(keyword):
                 print("{} not found".format(f_name))
                 continue
             inp_f = dict(inp_f)
-            print(inp_f)
             df = df.append(inp_f,ignore_index=True)
         print("-"*70)
-        print(df)
+        print(df['title'])
     return df
         
 #searchfiles(keyword)
