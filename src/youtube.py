@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-20 20:04:07 trottar"
+# Time-stamp: "2021-11-22 01:02:37 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,14 +15,14 @@ from youtube_transcript_api import YouTubeTranscriptApi
 import googleapiclient.discovery
 from urllib.parse import parse_qs, urlparse
 import urllib
-import json
-import os
+from PyQt5.QtWidgets import QProgressBar,QApplication 
+import json, os
 
 import tools
 
 pd.set_option('display.max_colwidth', None)
 
-def import_playlist(url):
+def import_playlist(url,pbar):
 
     print("Importing data for youtube playlist {}...".format(url))
     
@@ -74,6 +74,9 @@ def import_playlist(url):
         videoDict.update({"title" : title.lower()})
         videoDict.update({"url" : v_url})
         videoDict.update({"type" : "youtube"})
+        pbar.setMaximum(len(pl_urls)-1)
+        pbar.setValue(i)
+        QApplication.processEvents() 
         tools.progressBar(i, len(pl_urls)-1)
         try:
             transcript = YouTubeTranscriptApi.get_transcript(v_id)

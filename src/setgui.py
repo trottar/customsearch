@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-20 17:01:47 trottar"
+# Time-stamp: "2021-11-22 01:21:07 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -12,16 +12,19 @@
 #
 import pandas as pd
 import webbrowser as web
-import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from bs4 import BeautifulSoup
 from urllib.parse import parse_qs, urlparse
 import urllib.request
-import json
+import datetime
+import sys,json, time
+
+from random import randint
 
 import searchfiles
+import database
 
 # Set to False - Standard docking of widgets around the main content area
 # Set to True - Sub MainWindows each with their own private docking 
@@ -50,6 +53,23 @@ _DOCK_POSITIONS = (
 # Number of docks per area (eg. 2 in Qt.LeftDockWidgetArea if set to 2)
 _DOCK_RANGE = 1
 
+class ProgressBar(QProgressBar):
+
+    def __init__(self, layout, button,  *args, **kwargs):
+        #super(ProgressBar, self).__init__(*args, **kwargs)
+        QProgressBar.__init__(self, *args, **kwargs)
+        self.setValue(0)
+        if self.minimum() != self.maximum():
+            database.create_database(self, layout, button)
+            
+            
+    def onTimeout(self):
+        if self.value() >= 100:
+            self.timer.stop()
+            self.timer.deleteLater()
+            del self.timer
+            return
+        self.setValue(self.value() + 1)
 
 class test():
         
@@ -78,25 +98,63 @@ class test():
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
 
-                    if _DOCK_COUNT == 3 or _DOCK_COUNT == 4:
+                    def updateText(text):
+                        return text
+
+                    if _DOCK_COUNT == 3:
                         url = 'https://www.google.com'
-                        url_title = 'Google'
+                        #url_title = 'Google'
+                        url_title = '{}'.format('Google')
                         label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(url,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
                         label.setOpenExternalLinks(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(25)
                         sub.setCentralWidget(label)
-
-                    
+                        dock = QDockWidget("Progress bar/Update database/Daily article/Useful links")
+                        #dock.setMaximumHeight(25)
+                        dock.setMinimumHeight(25)
+                        dock.setMinimumWidth(300)
+                        dock.setMaximumHeight(100)
+                        dock.setWidget(sub)
+                        window.addDockWidget(pos, dock)
+                        
+                    if _DOCK_COUNT == 4:
+                        layout = QFormLayout()
+                        button = QPushButton('Update')
+                        dock = QDockWidget("Click to update database (may take a while)")
+                        layout.addRow(button)
+                        def signal_accept(msg):
+                            pbar.setValue(int(msg))
+                            if pbar.value() == 99:
+                                pbar.setValue(0)
+                        def button_pressed(clicked,date):
+                            #button.deleteLater()
+                            button.setEnabled(False)
+                            pbar = ProgressBar(layout=layout, button=button, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
+                            pbar.deleteLater()
+                            button.setText('Last updated {}'.format(date.strftime("%m/%d/%Y, %H:%M:%S")))
+                            button.setEnabled(True)
+                        button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
+                        dock.setMinimumHeight(25)
+                        dock.setMinimumWidth(300)
+                        dock.setMaximumWidth(300)
+                        dock.setFeatures(QDockWidget.DockWidgetMovable)
+                        window.addDockWidget(pos, dock)
+                        dockedWidget = QWidget(window)
+                        dock.setWidget(dockedWidget)
+                        dockedWidget.setLayout(layout)
+                        
                     if _DOCK_COUNT == 1:
                         layout = QFormLayout()
                         le = QLineEdit()
                         le.setMinimumWidth(500)
 
-                        def onClick():
+                        def onRet():
                             u_inp = le.text()
                             results = searchfiles.searchfiles(u_inp)
                             listWidget = QListWidget()
+                            listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
+                            listWidget.addItem(listWidgetItem)
                             for i,row in results.iterrows():
                                 text = row['url'].to_string(index=False)
                                 #print(text)
@@ -111,13 +169,13 @@ class test():
                                     soup = BeautifulSoup(data['html'],"html.parser")
                                     url = soup.find("iframe")["src"]
                                     url_title = row['title'].to_string(index=False)
-                                    listWidgetItem = QListWidgetItem("{}".format(url_title))
+                                    listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                     listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                     listWidget.addItem(listWidgetItem)
                                 else:
                                     url = row['url'].to_string(index=False)
                                     url_title = row['title'].to_string(index=False)
-                                    listWidgetItem = QListWidgetItem("{}".format(url_title))
+                                    listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                     listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                     listWidget.addItem(listWidgetItem)
                             def OpenLink(url):
@@ -129,7 +187,7 @@ class test():
                             mainWindow.setCentralWidget(listWidget)
                             return results
 
-                        le.returnPressed.connect(onClick)
+                        le.returnPressed.connect(onRet)
 
                         def selectionchange():
                             print("Items in the list are :")
@@ -158,7 +216,8 @@ class test():
                         #dock.setMaximumHeight(25)
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(300)
-                        dock.setMaximumHeight(100)
+                        dock.setMaximumWidth(300)
+                        dock.setMaximumHeight(500)
                         dock.setWidget(sub)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
                         window.addDockWidget(pos, dock)
@@ -166,16 +225,7 @@ class test():
                             addDocks(sub, "Sub Dock", subDocks=False)
                             window.addDockWidget(pos, dock)
                     else:
-                        if _DOCK_COUNT == 3:
-                            dock = QDockWidget("Progress bar/Update database/Daily article/Useful links")
-                        if _DOCK_COUNT == 4:
-                            dock = QDockWidget("Debug window")
-                        #dock.setMaximumHeight(25)
-                        dock.setMinimumHeight(25)
-                        dock.setMinimumWidth(300)
-                        dock.setMaximumHeight(100)
-                        dock.setWidget(sub)
-                        window.addDockWidget(pos, dock)
+
 
                         if DO_SUB_DOCK_CREATION and subDocks:
                             addDocks(sub, "Sub Dock", subDocks=False)
@@ -187,7 +237,15 @@ class test():
         mainWindow.raise_()
                     
         return mainWindow
-                    
+    
+# Define a stream, custom class, that reports data written to it, with a Qt signal
+class EmittingStream(QObject):
+
+    textWritten = pyqtSignal(str)
+
+    def write(self, text):
+        self.textWritten.emit(str(text))
+    
             
 def main(): 
    app = QApplication(sys.argv)

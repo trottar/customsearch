@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-20 20:04:23 trottar"
+# Time-stamp: "2021-11-22 01:02:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,15 +15,17 @@ import chrome_bookmarks
 from urllib.parse import parse_qs, urlparse
 import urllib
 from bs4 import BeautifulSoup
+from PyQt5.QtWidgets import QProgressBar,QApplication 
 
 import tools
 
 pd.set_option('display.max_colwidth', None)
 
-def import_bookmarks(inp_folder):
+        
+def import_bookmarks(inp_folder,pbar):
 
     print("Importing data for bookmarks from {}...".format(inp_folder))
-
+    
     bookmarkDict = {}
     df = pd.DataFrame()
     for folder in chrome_bookmarks.folders:
@@ -33,6 +35,9 @@ def import_bookmarks(inp_folder):
                 bookmarkDict.update({"url" : url.url})
                 bookmarkDict.update({"type" : "bookmark"})
                 #print("\t-> ",url.name.lower())
+                pbar.setMaximum(len(folder.urls)-1)
+                pbar.setValue(i)
+                QApplication.processEvents() 
                 tools.progressBar(i, len(folder.urls)-1)
                 #print(url, "\n\n","-"*70)
                 url = url.url
@@ -51,5 +56,5 @@ def import_bookmarks(inp_folder):
                 bookmarkDict = {k : bookmarkDict[k] for k in sorted(bookmarkDict.keys())}
                 df = df.append(bookmarkDict,ignore_index=True)
     print("-"*70)
-    
+
     return df

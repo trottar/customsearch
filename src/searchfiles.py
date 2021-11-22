@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-20 13:36:17 trottar"
+# Time-stamp: "2021-11-22 01:08:42 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -13,8 +13,6 @@
 import pandas as pd
 import sys
 import subprocess
-
-#keyword = sys.argv[1]
 
 pd.set_option('display.max_colwidth', None)
 
@@ -59,5 +57,3 @@ def searchfiles(keyword):
         print("-"*70)
         print(df['title'])
     return df
-        
-#searchfiles(keyword)
