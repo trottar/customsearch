@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 01:21:07 trottar"
+# Time-stamp: "2021-11-22 01:42:35 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -97,9 +97,6 @@ class test():
                     sub = QMainWindow()
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
-
-                    def updateText(text):
-                        return text
 
                     if _DOCK_COUNT == 3:
                         url = 'https://www.google.com'

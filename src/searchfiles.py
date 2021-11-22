@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 01:08:42 trottar"
+# Time-stamp: "2021-11-22 01:51:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -16,9 +16,9 @@ import subprocess
 
 pd.set_option('display.max_colwidth', None)
 
-def searchfiles(keyword):
+def searchfiles(keyword,database=''):
 
-    cmd = ['./LucenePlusPlus/src/searchDB.sh','{}'.format(keyword)]
+    cmd = ['./LucenePlusPlus/src/searchDB.sh','{}'.format(keyword),'../../../database/{}'.format(database)]
     result = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
     #print(result)
     try:

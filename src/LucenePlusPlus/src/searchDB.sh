@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-18 11:13:37 trottar"
+# Time-stamp: "2021-11-22 01:51:54 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -13,7 +13,8 @@
 
 KEYWORD=$1
 
-DB="../../../database/"
+#DB="../../../database/"
+DB=$2
 
 #cd ../build/ # relative to bash script
 cd LucenePlusPlus/build/ # relative to python script

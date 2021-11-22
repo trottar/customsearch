@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 01:03:27 trottar"
+# Time-stamp: "2021-11-22 13:00:01 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,24 +18,71 @@ import bookmarks
 
 pd.set_option('display.max_colwidth', None)
 
-'''
-!!!!!!!!!!!!!!
-Need to improve these three scripts (database, youtube, bookmarks) so that they
-check if a bookmark/video already exists plus add in some progress bars. Also
-need tp add a list input for running many bookmarks/playlists
-
-'''
-
 def create_database(pbar,layout,button):
-
+    '''
+    database="" # database dir name
     #url = 'https://www.youtube.com/playlist?list=PLW5jnpyxgQHX7i63VJ1LJEgHFHcL3G_QC' # Physics
     url = 'https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU' # Test
-    #bm_folder = 'Must Read'
     bm_folder = 'Dogs'
     #bm_folder = 'Interesting Articles'
+    '''
 
     layout.addRow(pbar)
 
+
+    importDict = {
+
+        'Must Read' : {
+
+            'bookmarks' : ['Must Read'],
+            'youtube' : [None],
+            'database' : ['must_read/']
+        },
+
+        'Test' : {
+
+            'bookmarks' : ['Dogs'],
+            'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],
+            'database' : 'test/'
+        },
+    }
+
+    for dir in importDict:
+        #print("dir: ",dir)
+        for key in importDict[dir]:
+            #print("key: ",key)
+            if key == 'bookmarks':
+                #print("bookmarks: ", importDict[dir][key])
+                bm_folder = importDict[dir][key]
+                b_df = bookmarks.import_bookmarks(bm_folder,pbar,button)
+            if key == 'youtube':
+                #print("youtube: ", importDict[dir][key])
+                yt_folder = importDict[dir][key]
+                button.setText("Updating youtube data...")
+                y_df = youtube.import_playlist(yt_folder,pbar)
+            if key == 'database':
+                #print("database: ", importDict[dir][key])
+                database = importDict[dir][key]
+    
+    df = pd.concat([b_df,y_df], ignore_index=True)
+    df  = df.reindex(sorted(df.columns),axis=1)
+    
+    try:
+        with open('../database/log/database_titles.txt', 'a') as f:
+            for text in df['url'].tolist():
+                f.write(text + '\n')
+
+        print("There were {} entries added to the database".format(len(df['title'])))
+                
+        out_f = '../database/{}search_database'.format(database)
+        for i,row in df.iterrows():
+            dfRow = pd.DataFrame(row)
+            dfRow = dfRow.T
+            dfRow.to_csv("{0}_{1}.{2}".format(out_f,i,'csv'),index=False,header=True,mode='w')
+    except:
+        print('No new entries to add...')
+            
+    '''
     button.setText("Updating bookmark data...")
     b_df = bookmarks.import_bookmarks(bm_folder,pbar)
     
@@ -45,11 +92,10 @@ def create_database(pbar,layout,button):
     df = pd.concat([b_df,y_df], ignore_index=True)
     df  = df.reindex(sorted(df.columns),axis=1)
 
-    print("There were {} entries added to the database".format(len(df['title'])))
-
     out_f = '../database/search_database'
 
     for i,row in df.iterrows():
         dfRow = pd.DataFrame(row)
         dfRow = dfRow.T
         dfRow.to_csv("{0}_{1}.{2}".format(out_f,i,'csv'),index=False,header=True,mode='w')
+    '''
