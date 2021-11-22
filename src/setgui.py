@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 01:42:35 trottar"
+# Time-stamp: "2021-11-22 13:29:40 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -145,10 +145,22 @@ class test():
                         layout = QFormLayout()
                         le = QLineEdit()
                         le.setMinimumWidth(500)
+                        
+                        def selectionchange():
+                            print("Items in the list are :")
 
+                            for count in range(cb.count()):
+                                print(cb.itemText(count))
+                            print("Current selection: ",cb.currentText())
+                            return cb.currentText()
+                        
                         def onRet():
                             u_inp = le.text()
-                            results = searchfiles.searchfiles(u_inp)
+                            if selectionchange() == 'Select Subject':
+                                results = searchfiles.searchfiles(u_inp)
+                            else:
+                                print("!!! ",database.databaseDict()[selectionchange()]['database'])
+                                results = searchfiles.searchfiles(u_inp,database.databaseDict()[selectionchange()]['database'])
                             listWidget = QListWidget()
                             listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
                             listWidget.addItem(listWidgetItem)
@@ -186,18 +198,10 @@ class test():
 
                         le.returnPressed.connect(onRet)
 
-                        def selectionchange():
-                            print("Items in the list are :")
-
-                            for count in range(cb.count()):
-                                print(cb.itemText(count))
-                            print("Current selection: ",cb.currentText())
-                            return cb.currentText()         
-
                         cb = QComboBox()
                         cb.setMaximumWidth(200)
-                        cb.addItem("Physics")
-                        cb.addItems(["Coding", "Thesis", "Misc"])
+                        cb.addItem('Select Subject')
+                        cb.addItems(list(database.databaseDict().keys()))
                         cb.currentIndexChanged.connect(selectionchange)
                         layout.addRow(le,cb)
                         dock = QDockWidget("Search keyword below")

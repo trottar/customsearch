@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 13:00:01 trottar"
+# Time-stamp: "2021-11-22 13:30:19 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,6 +18,28 @@ import bookmarks
 
 pd.set_option('display.max_colwidth', None)
 
+def databaseDict():
+
+    databaseDict = {
+
+        'Must Read' : {
+
+            'bookmarks' : ['Must Read'],
+            'youtube' : [None],
+            'database' : 'must_read/'
+        },
+
+        'Test' : {
+
+            'bookmarks' : ['Dogs'],
+            'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],
+            'database' : 'test/'
+        },
+    }
+
+    return databaseDict
+
+
 def create_database(pbar,layout,button):
     '''
     database="" # database dir name
@@ -30,22 +52,8 @@ def create_database(pbar,layout,button):
     layout.addRow(pbar)
 
 
-    importDict = {
-
-        'Must Read' : {
-
-            'bookmarks' : ['Must Read'],
-            'youtube' : [None],
-            'database' : ['must_read/']
-        },
-
-        'Test' : {
-
-            'bookmarks' : ['Dogs'],
-            'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],
-            'database' : 'test/'
-        },
-    }
+    importDict = databaseDict()
+    
 
     for dir in importDict:
         #print("dir: ",dir)
