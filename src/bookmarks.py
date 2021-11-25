@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 12:49:23 trottar"
+# Time-stamp: "2021-11-25 11:44:57 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -52,7 +52,10 @@ def import_bookmarks(inp_folder,pbar,button):
                         if e.code in (..., 403, ...):
                             continue
                     soup = BeautifulSoup(html, "html.parser")
-                    text = ''
+                    if val == 'Must Read':
+                        text = 'MR: '
+                    else:
+                        text = ''
                     for para in soup.find_all("p"):
                         text += para.get_text()
                     #print(' '.join([line.strip().lower() for line in text.splitlines()]),"\n\n")
@@ -60,5 +63,4 @@ def import_bookmarks(inp_folder,pbar,button):
                     bookmarkDict = {k : bookmarkDict[k] for k in sorted(bookmarkDict.keys())}
                     df = df.append(bookmarkDict,ignore_index=True)
     print("-"*70)
-
     return df

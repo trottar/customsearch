@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 13:30:19 trottar"
+# Time-stamp: "2021-11-25 11:37:59 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -58,37 +58,39 @@ def create_database(pbar,layout,button):
     for dir in importDict:
         #print("dir: ",dir)
         for key in importDict[dir]:
-            #print("key: ",key)
+            print("key: ",key)
             if key == 'bookmarks':
                 #print("bookmarks: ", importDict[dir][key])
                 bm_folder = importDict[dir][key]
                 b_df = bookmarks.import_bookmarks(bm_folder,pbar,button)
-            if key == 'youtube':
+            elif key == 'youtube':
                 #print("youtube: ", importDict[dir][key])
                 yt_folder = importDict[dir][key]
                 button.setText("Updating youtube data...")
                 y_df = youtube.import_playlist(yt_folder,pbar)
-            if key == 'database':
+            elif key == 'database':
                 #print("database: ", importDict[dir][key])
                 database = importDict[dir][key]
-    
-    df = pd.concat([b_df,y_df], ignore_index=True)
-    df  = df.reindex(sorted(df.columns),axis=1)
-    
-    try:
-        with open('../database/log/database_titles.txt', 'a') as f:
-            for text in df['url'].tolist():
-                f.write(text + '\n')
-
-        print("There were {} entries added to the database".format(len(df['title'])))
+            else:
+                print('{} not found'.format(key))
                 
-        out_f = '../database/{}search_database'.format(database)
-        for i,row in df.iterrows():
-            dfRow = pd.DataFrame(row)
-            dfRow = dfRow.T
-            dfRow.to_csv("{0}_{1}.{2}".format(out_f,i,'csv'),index=False,header=True,mode='w')
-    except:
-        print('No new entries to add...')
+        df = pd.concat([b_df,y_df], ignore_index=True)
+        df  = df.reindex(sorted(df.columns),axis=1)
+
+        try:
+            with open('../database/log/database_titles.txt', 'a') as f:
+                for text in df['url'].tolist():
+                    f.write(text + '\n')
+
+            print("There were {} entries added to the database".format(len(df['title'])))
+
+            out_f = '../database/{}search_database'.format(database)
+            for i,row in df.iterrows():
+                dfRow = pd.DataFrame(row)
+                dfRow = dfRow.T
+                dfRow.to_csv("{0}_{1}.{2}".format(out_f,i,'csv'),index=False,header=True,mode='w')
+        except:
+            print('No new entries to add for {}...'.format(dir))
             
     '''
     button.setText("Updating bookmark data...")

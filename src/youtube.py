@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 12:58:43 trottar"
+# Time-stamp: "2021-11-25 11:40:29 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -27,12 +27,10 @@ def import_playlist(playlist,pbar):
     videoDict = {}
     df = pd.DataFrame()
     for vid in playlist:
-    
-        print("Importing data for youtube playlist {}...".format(vid))
 
-        if vid == None:
-            continue
-        else:
+        print("Importing data for youtube playlist {}...".format(vid))
+        
+        if None != vid:
             #extract playlist id from url
             query = parse_qs(urlparse(vid).query, keep_blank_values=True)
             playlist_id = query["list"][0]
@@ -97,6 +95,5 @@ def import_playlist(playlist,pbar):
                 videoDict.update({"transcript" : ' '.join([line.strip().lower() for line in text.splitlines()])})
                 videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
                 df = df.append(videoDict,ignore_index=True)
-    print("-"*70)        
-    
+            print("-"*70)
     return df

@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-22 13:40:37 trottar"
+# Time-stamp: "2021-11-25 11:50:42 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -99,15 +99,24 @@ class test():
                     sub.setDockOptions(_DOCK_OPTS)
 
                     if _DOCK_COUNT == 3:
-                        url = 'https://www.google.com'
-                        #url_title = 'Google'
-                        url_title = '{}'.format('Google')
+                        def article_random():
+                            results = searchfiles.searchfiles('mr',database.databaseDict()['Must Read']['database'])
+                            randnum = randint(0, len(results.index))
+                            for i,row in results.iterrows():
+                                if randnum == i:
+                                    url = row['url'].to_string(index=False)
+                                    url_title = row['title'].to_string(index=False)
+                                    return [url,url_title]
+                        url = article_random()[0]
+                        url_title = article_random()[1]
+                        #url = "https://www.google.com"
+                        #url_title = "Google"
                         label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(url,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
                         label.setOpenExternalLinks(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(25)
                         sub.setCentralWidget(label)
-                        dock = QDockWidget("Progress bar/Update database/Daily article/Useful links")
+                        dock = QDockWidget("Article of the day...")
                         #dock.setMaximumHeight(25)
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(300)
@@ -147,10 +156,6 @@ class test():
                         le.setMinimumWidth(500)
                         
                         def selectionchange():
-                            print("Items in the list are :")
-
-                            for count in range(cb.count()):
-                                print(cb.itemText(count))
                             print("Current selection: ",cb.currentText())
                             return cb.currentText()
                         
@@ -164,41 +169,49 @@ class test():
                                 mainWindow.setCentralWidget(listWidget)
                                 return results
                             else:
-                                results = searchfiles.searchfiles(u_inp,database.databaseDict()[selectionchange()]['database'])
-                                listWidget = QListWidget()
-                                listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
-                                listWidget.addItem(listWidgetItem)
-                                for i,row in results.iterrows():
-                                    text = row['url'].to_string(index=False)
-                                    #print(text)
-                                    if row['type'].to_string(index=False) == 'youtube':
-                                        try:
-                                            with urllib.request.urlopen(text) as response:
-                                                response_text = response.read()
-                                                data = json.loads(response_text.decode())
-                                        except urllib.error.HTTPError as e:
-                                            if e.code in (..., 403, ...):
-                                                continue
-                                        soup = BeautifulSoup(data['html'],"html.parser")
-                                        url = soup.find("iframe")["src"]
-                                        url_title = row['title'].to_string(index=False)
-                                        listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
-                                        listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
-                                        listWidget.addItem(listWidgetItem)
-                                    else:
-                                        url = row['url'].to_string(index=False)
-                                        url_title = row['title'].to_string(index=False)
-                                        listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
-                                        listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
-                                        listWidget.addItem(listWidgetItem)
-                                def OpenLink(url):
-                                    url = url.split('URL:')[1]
-                                    print(url)
-                                    web.open(url)
-                                listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem().toolTip()))
-                                listWidget.setWordWrap(True)
-                                mainWindow.setCentralWidget(listWidget)
-                                return results
+                                if u_inp == '':
+                                    results = searchfiles.searchfiles(u_inp)
+                                    listWidget = QListWidget()
+                                    listWidgetItem = QListWidgetItem("Please enter valid keyword...")
+                                    listWidget.addItem(listWidgetItem)
+                                    mainWindow.setCentralWidget(listWidget)
+                                    return results
+                                else:
+                                    results = searchfiles.searchfiles(u_inp,database.databaseDict()[selectionchange()]['database'])
+                                    listWidget = QListWidget()
+                                    listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
+                                    listWidget.addItem(listWidgetItem)
+                                    for i,row in results.iterrows():
+                                        text = row['url'].to_string(index=False)
+                                        #print(text)
+                                        if row['type'].to_string(index=False) == 'youtube':
+                                            try:
+                                                with urllib.request.urlopen(text) as response:
+                                                    response_text = response.read()
+                                                    data = json.loads(response_text.decode())
+                                            except urllib.error.HTTPError as e:
+                                                if e.code in (..., 403, ...):
+                                                    continue
+                                            soup = BeautifulSoup(data['html'],"html.parser")
+                                            url = soup.find("iframe")["src"]
+                                            url_title = row['title'].to_string(index=False)
+                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                            listWidget.addItem(listWidgetItem)
+                                        else:
+                                            url = row['url'].to_string(index=False)
+                                            url_title = row['title'].to_string(index=False)
+                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                            listWidget.addItem(listWidgetItem)
+                                    def OpenLink(url):
+                                        url = url.split('URL:')[1]
+                                        print(url)
+                                        web.open(url)
+                                    listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem().toolTip()))
+                                    listWidget.setWordWrap(True)
+                                    mainWindow.setCentralWidget(listWidget)
+                                    return results
 
                         le.returnPressed.connect(onRet)
 
