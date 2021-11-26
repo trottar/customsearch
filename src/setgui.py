@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-25 11:50:42 trottar"
+# Time-stamp: "2021-11-26 15:30:02 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -55,12 +55,12 @@ _DOCK_RANGE = 1
 
 class ProgressBar(QProgressBar):
 
-    def __init__(self, layout, button,  *args, **kwargs):
+    def __init__(self, layout, button,  arg, *args, **kwargs):
         #super(ProgressBar, self).__init__(*args, **kwargs)
         QProgressBar.__init__(self, *args, **kwargs)
         self.setValue(0)
         if self.minimum() != self.maximum():
-            database.create_database(self, layout, button)
+            database.create_database(self, layout, button, arg)
             
             
     def onTimeout(self):
@@ -84,6 +84,8 @@ class test():
         widget.setMinimumSize(300,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
+
+        argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'database' : 'test/'},'Test2' : {'bookmarks' : ['Dogs'],'youtube' : [None],'database' : 'test2/'}}
         
         def addDocks(window, name, subDocks=True):
             global _DOCK_COUNT
@@ -100,24 +102,27 @@ class test():
 
                     if _DOCK_COUNT == 3:
                         def article_random():
-                            results = searchfiles.searchfiles('mr',database.databaseDict()['Must Read']['database'])
+                            
+                            results = searchfiles.searchfiles('mr',database.databaseDict(argv)['Must Read']['database'])
                             randnum = randint(0, len(results.index))
                             for i,row in results.iterrows():
                                 if randnum == i:
                                     url = row['url'].to_string(index=False)
                                     url_title = row['title'].to_string(index=False)
                                     return [url,url_title]
-                        url = article_random()[0]
-                        url_title = article_random()[1]
-                        #url = "https://www.google.com"
-                        #url_title = "Google"
+                        try:
+                            url = article_random()[0]
+                            url_title = article_random()[1]
+                        except:
+                            url = "https://www.google.com"
+                            url_title = "ERROR: Article not found..."
                         label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(url,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
                         label.setOpenExternalLinks(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(25)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
-                        #dock.setMaximumHeight(25)
+                        dock.setMaximumHeight(25)
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(300)
                         dock.setMaximumHeight(100)
@@ -136,7 +141,7 @@ class test():
                         def button_pressed(clicked,date):
                             #button.deleteLater()
                             button.setEnabled(False)
-                            pbar = ProgressBar(layout=layout, button=button, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
+                            pbar = ProgressBar(layout=layout, button=button, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
                             pbar.deleteLater()
                             button.setText('Last updated {}'.format(date.strftime("%m/%d/%Y, %H:%M:%S")))
                             button.setEnabled(True)
@@ -177,7 +182,7 @@ class test():
                                     mainWindow.setCentralWidget(listWidget)
                                     return results
                                 else:
-                                    results = searchfiles.searchfiles(u_inp,database.databaseDict()[selectionchange()]['database'])
+                                    results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
                                     listWidget = QListWidget()
                                     listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
                                     listWidget.addItem(listWidgetItem)
@@ -218,7 +223,7 @@ class test():
                         cb = QComboBox()
                         cb.setMaximumWidth(200)
                         cb.addItem('Select...')
-                        cb.addItems(list(database.databaseDict().keys()))
+                        cb.addItems(list(database.databaseDict(argv).keys()))
                         cb.currentIndexChanged.connect(selectionchange)
                         layout.addRow(le,cb)
                         dock = QDockWidget("Search keyword below")

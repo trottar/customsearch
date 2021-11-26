@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-25 11:40:29 trottar"
+# Time-stamp: "2021-11-26 14:53:34 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -95,5 +95,5 @@ def import_playlist(playlist,pbar):
                 videoDict.update({"transcript" : ' '.join([line.strip().lower() for line in text.splitlines()])})
                 videoDict = {k : videoDict[k] for k in sorted(videoDict.keys())}
                 df = df.append(videoDict,ignore_index=True)
-            print("-"*70)
+        print("-"*70)
     return df

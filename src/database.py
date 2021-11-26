@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-25 11:37:59 trottar"
+# Time-stamp: "2021-11-26 15:25:23 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,29 +18,32 @@ import bookmarks
 
 pd.set_option('display.max_colwidth', None)
 
-def databaseDict():
+def build_database(inp_db):
 
-    databaseDict = {
+    db_path = '../database/'+inp_db
+    
+    if not os.path.exists(db_path):
+        os.makedirs(db_path)
+    else:
+        print("{} exists...".format(db_path))
 
-        'Must Read' : {
+def databaseDict(*args):
 
-            'bookmarks' : ['Must Read'],
-            'youtube' : [None],
-            'database' : 'must_read/'
-        },
+    databaseDict = {}
+    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'],'youtube' : [None],'database' : 'must_read/'}})
 
-        'Test' : {
-
-            'bookmarks' : ['Dogs'],
-            'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],
-            'database' : 'test/'
-        },
-    }
+    print("!!! ", args)
+    for arg in args:
+        print("!!! ", arg)
+        for key,val in arg.items():
+            #print(val['database'])
+            build_database(val['database'])
+        databaseDict.update(arg)
 
     return databaseDict
 
 
-def create_database(pbar,layout,button):
+def create_database(pbar,layout,button,*args):
     '''
     database="" # database dir name
     #url = 'https://www.youtube.com/playlist?list=PLW5jnpyxgQHX7i63VJ1LJEgHFHcL3G_QC' # Physics
@@ -48,17 +51,16 @@ def create_database(pbar,layout,button):
     bm_folder = 'Dogs'
     #bm_folder = 'Interesting Articles'
     '''
-
+    
     layout.addRow(pbar)
 
-
-    importDict = databaseDict()
+    for arg in args:
+        importDict = databaseDict(*args)
     
-
     for dir in importDict:
         #print("dir: ",dir)
         for key in importDict[dir]:
-            print("key: ",key)
+            #print("key: ",key)
             if key == 'bookmarks':
                 #print("bookmarks: ", importDict[dir][key])
                 bm_folder = importDict[dir][key]
