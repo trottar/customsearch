@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-26 15:30:02 trottar"
+# Time-stamp: "2021-11-30 01:02:34 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -48,6 +48,7 @@ _DOCK_POSITIONS = (
 _DOCK_POSITIONS = (
     Qt.TopDockWidgetArea,
     Qt.RightDockWidgetArea,
+    Qt.BottomDockWidgetArea,
 )
 
 # Number of docks per area (eg. 2 in Qt.LeftDockWidgetArea if set to 2)
@@ -71,7 +72,7 @@ class ProgressBar(QProgressBar):
             return
         self.setValue(self.value() + 1)
 
-class test():
+class GUI():
         
     def mainwindow():
 
@@ -81,11 +82,68 @@ class test():
         mainWindow.setDockOptions(_DOCK_OPTS)
 
         widget = QLabel("MAIN APP CONTENT AREA")
-        widget.setMinimumSize(300,200)
+        widget.setMinimumSize(200,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
+            
+        def update_log(argv):
+            s_argv = {i : argv[i] for i in sorted(argv.keys())}
+            df = pd.DataFrame.from_dict(s_argv, orient='index')
+            df = df.to_csv('log/database_topics.log')
+            sys.exit(0)
+        
+        def update_argv():
 
-        argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'database' : 'test/'},'Test2' : {'bookmarks' : ['Dogs'],'youtube' : [None],'database' : 'test2/'}}
+            f_name = "log/database_topics.log"
+            try:
+                up_d = {}
+                inp_d = pd.read_csv(f_name)
+                for i,row in inp_d.iterrows():
+                    key = row.iloc[0].strip()
+                    bookmarks = row.iloc[1].strip().strip("[").strip("]").strip("'")
+                    if 'None' in bookmarks:
+                        bookmarks = None
+                    youtube = row.iloc[2].strip().strip("[").strip("]").strip("'")
+                    if 'None' in youtube:
+                        youtube = None
+                    database = row.iloc[3].strip().strip("[").strip("]").strip("'")
+                    up_d.update({key : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'database' : database}})
+            except pd.errors.EmptyDataError:
+                up_d = {}
+
+            return up_d
+        
+        #argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'database' : 'test/'}}
+        argv = update_argv()
+
+        def add_topic(name,bookmarks,youtube):
+            database = name.replace(' ','_').lower()
+            if ',' in bookmarks and ',' in youtube:
+                argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
+            elif ',' in bookmarks and ',' not in youtube:
+                if not youtube:
+                    argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : [None], 'database' : '{}/'.format(database)}})
+                else:
+                    argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
+            elif ',' not in bookmarks and ',' in youtube:
+                if not bookmarks:
+                    argv.update({name : {'bookmarks' : [None], 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
+                else:
+                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
+            elif ',' not in bookmarks and ',' not in youtube:
+                if not bookmarks and not youtube:
+                    argv.update({name : {'bookmarks' : [None], 'youtube' : [None], 'database' : '{}/'.format(database)}})
+                elif not bookmarks:
+                    argv.update({name : {'bookmarks' : [None], 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
+                if not youtube:
+                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : [None], 'database' : '{}/'.format(database)}})
+                else:
+                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
+            else:
+                print('ERROR: Invalid entry')
+                
+            update_log(argv)
+                    
         
         def addDocks(window, name, subDocks=True):
             global _DOCK_COUNT
@@ -100,7 +158,7 @@ class test():
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
 
-                    if _DOCK_COUNT == 3:
+                    if _DOCK_COUNT == 4:
                         def article_random():
                             
                             results = searchfiles.searchfiles('mr',database.databaseDict(argv)['Must Read']['database'])
@@ -118,18 +176,51 @@ class test():
                             url_title = "ERROR: Article not found..."
                         label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(url,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
                         label.setOpenExternalLinks(True)
+                        label.setWordWrap(True)
                         label.setMinimumHeight(25)
-                        label.setMaximumHeight(25)
+                        label.setMaximumHeight(50)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
                         dock.setMaximumHeight(25)
-                        dock.setMinimumHeight(25)
+                        dock.setMinimumHeight(50)
                         dock.setMinimumWidth(300)
-                        dock.setMaximumHeight(100)
                         dock.setWidget(sub)
                         window.addDockWidget(pos, dock)
                         
-                    if _DOCK_COUNT == 4:
+                    if _DOCK_COUNT == 5:
+                        layout = QFormLayout()
+                        button = QPushButton("Submit (window will close on update)")
+                        le1 = QLineEdit()
+                        le2 = QLineEdit()
+                        le3 = QLineEdit()
+                        layout.addRow("Name: ",le1)
+                        layout.addRow("bookmarks: ",le2)
+                        layout.addRow("youtube: ",le3)
+                        layout.addRow(button)
+                        def button_pressed(clicked):
+                            button.setEnabled(False)
+                            if not le1.text():
+                                print('No entries entered')
+                                button.setText('Please enter entries above...'.format(le1.text()))                                
+                            else:
+                                add_topic(le1.text(),le2.text(),le3.text())
+                                pbar = ProgressBar(layout=layout, button=button, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
+                                pbar.deleteLater()
+                            le1.clear()
+                            le2.clear()
+                            le3.clear()
+                            button.setEnabled(True)
+                        button.clicked.connect(lambda: button_pressed(button.setEnabled(True)))
+                        dock = QDockWidget("Create database topic")
+                        dock.setMinimumHeight(25)
+                        dock.setMinimumWidth(300)
+                        dock.setWidget(sub)
+                        window.addDockWidget(pos, dock)
+                        dockedWidget = QWidget(window)
+                        dock.setWidget(dockedWidget)
+                        dockedWidget.setLayout(layout)                        
+                         
+                    if _DOCK_COUNT == 6:
                         layout = QFormLayout()
                         button = QPushButton('Update')
                         dock = QDockWidget("Click to update database (may take a while)")
@@ -139,7 +230,6 @@ class test():
                             if pbar.value() == 99:
                                 pbar.setValue(0)
                         def button_pressed(clicked,date):
-                            #button.deleteLater()
                             button.setEnabled(False)
                             pbar = ProgressBar(layout=layout, button=button, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
                             pbar.deleteLater()
@@ -165,7 +255,7 @@ class test():
                             return cb.currentText()
                         
                         def onRet():
-                            u_inp = le.text()
+                            u_inp = le.text().lower()
                             if selectionchange() == 'Select...':
                                 results = searchfiles.searchfiles(u_inp)
                                 listWidget = QListWidget()
@@ -182,6 +272,9 @@ class test():
                                     mainWindow.setCentralWidget(listWidget)
                                     return results
                                 else:
+                                    with open('log/search_history.log', 'r+') as f:
+                                        if u_inp not in f.read():
+                                            f.write(u_inp + '\n')
                                     results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
                                     listWidget = QListWidget()
                                     listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
@@ -247,9 +340,8 @@ class test():
                         if DO_SUB_DOCK_CREATION and subDocks:
                             addDocks(sub, "Sub Dock", subDocks=False)
                             window.addDockWidget(pos, dock)
+                            
                     else:
-
-
                         if DO_SUB_DOCK_CREATION and subDocks:
                             addDocks(sub, "Sub Dock", subDocks=False)
                             window.addDockWidget(pos, dock)
@@ -260,16 +352,7 @@ class test():
         mainWindow.raise_()
                     
         return mainWindow
-    
-# Define a stream, custom class, that reports data written to it, with a Qt signal
-class EmittingStream(QObject):
-
-    textWritten = pyqtSignal(str)
-
-    def write(self, text):
-        self.textWritten.emit(str(text))
-    
-            
+        
 def main(): 
    app = QApplication(sys.argv)
    app.setStyle('WindowsVista')
@@ -279,7 +362,7 @@ def main():
    qp.setColor(QPalette.Button, Qt.gray)
    app.setPalette(qp)
 
-   mainwindow = test.mainwindow()
+   mainwindow = GUI.mainwindow()
    mainwindow.show()
    sys.exit(app.exec_())
 

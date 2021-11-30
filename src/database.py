@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-26 15:25:23 trottar"
+# Time-stamp: "2021-11-29 18:28:09 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -32,9 +32,7 @@ def databaseDict(*args):
     databaseDict = {}
     databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'],'youtube' : [None],'database' : 'must_read/'}})
 
-    print("!!! ", args)
     for arg in args:
-        print("!!! ", arg)
         for key,val in arg.items():
             #print(val['database'])
             build_database(val['database'])
