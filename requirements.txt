@@ -6,3 +6,9 @@ chrome-bookmarks
 beautifulsoup4
 pyqt5==5.14.0
 openpyxl
+pdf2image==1.16.0
+pytesseract==0.3.8
+# Linux
+libleptonica-dev
+tesseract-ocr
+libtesseract-dev

@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-30 01:02:34 trottar"
+# Time-stamp: "2021-11-30 12:54:31 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -106,8 +106,11 @@ class GUI():
                     youtube = row.iloc[2].strip().strip("[").strip("]").strip("'")
                     if 'None' in youtube:
                         youtube = None
-                    database = row.iloc[3].strip().strip("[").strip("]").strip("'")
-                    up_d.update({key : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'database' : database}})
+                    pdf = row.iloc[3].strip().strip("[").strip("]").strip("'")
+                    if 'None' in pdf:
+                        pdf = None                        
+                    database = row.iloc[4].strip().strip("[").strip("]").strip("'")
+                    up_d.update({key : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'pdf' : [pdf], 'database' : database}})
             except pd.errors.EmptyDataError:
                 up_d = {}
 
@@ -116,31 +119,30 @@ class GUI():
         #argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'database' : 'test/'}}
         argv = update_argv()
 
-        def add_topic(name,bookmarks,youtube):
+        def add_topic(name,bookmarks,youtube,pdf):
             database = name.replace(' ','_').lower()
-            if ',' in bookmarks and ',' in youtube:
-                argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
-            elif ',' in bookmarks and ',' not in youtube:
-                if not youtube:
-                    argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : [None], 'database' : '{}/'.format(database)}})
+            if ',' in bookmarks:
+                bookmarks = bookmarks.split(',')
+            elif ',' not in bookmarks:
+                if not bookmarks:                
+                    bookmarks = [None]
                 else:
-                    argv.update({name : {'bookmarks' : bookmarks.split(','), 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
-            elif ',' not in bookmarks and ',' in youtube:
-                if not bookmarks:
-                    argv.update({name : {'bookmarks' : [None], 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
+                    bookmarks = [bookmarks]
+            if ',' in youtube:
+                youtube = youtube.split(',')
+            elif ',' not in youtube:
+                if not youtube:                
+                    youtube = [None]
                 else:
-                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : youtube.split(','), 'database' : '{}/'.format(database)}})
-            elif ',' not in bookmarks and ',' not in youtube:
-                if not bookmarks and not youtube:
-                    argv.update({name : {'bookmarks' : [None], 'youtube' : [None], 'database' : '{}/'.format(database)}})
-                elif not bookmarks:
-                    argv.update({name : {'bookmarks' : [None], 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
-                if not youtube:
-                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : [None], 'database' : '{}/'.format(database)}})
+                    youtube = [youtube]
+            if ',' in pdf:
+                pdf = pdf.split(',')
+            elif ',' not in pdf:
+                if not pdf:                
+                    pdf = [None]
                 else:
-                    argv.update({name : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'database' : '{}/'.format(database)}})
-            else:
-                print('ERROR: Invalid entry')
+                    pdf = [pdf]                    
+            argv.update({name : {'bookmarks' : bookmarks, 'youtube' : youtube, 'pdf' : pdf, 'database' : '{}/'.format(database)}})
                 
             update_log(argv)
                     
@@ -193,9 +195,11 @@ class GUI():
                         le1 = QLineEdit()
                         le2 = QLineEdit()
                         le3 = QLineEdit()
+                        le4 = QLineEdit()
                         layout.addRow("Name: ",le1)
                         layout.addRow("bookmarks: ",le2)
                         layout.addRow("youtube: ",le3)
+                        layout.addRow("pdf: ",le4)
                         layout.addRow(button)
                         def button_pressed(clicked):
                             button.setEnabled(False)
@@ -203,12 +207,13 @@ class GUI():
                                 print('No entries entered')
                                 button.setText('Please enter entries above...'.format(le1.text()))                                
                             else:
-                                add_topic(le1.text(),le2.text(),le3.text())
+                                add_topic(le1.text(),le2.text(),le3.text(),le4.text())
                                 pbar = ProgressBar(layout=layout, button=button, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
                                 pbar.deleteLater()
                             le1.clear()
                             le2.clear()
                             le3.clear()
+                            le4.clear()
                             button.setEnabled(True)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True)))
                         dock = QDockWidget("Create database topic")

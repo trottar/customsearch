@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-29 18:28:09 trottar"
+# Time-stamp: "2021-11-30 12:59:15 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -15,6 +15,7 @@ import os
 
 import youtube
 import bookmarks
+import pdf
 
 pd.set_option('display.max_colwidth', None)
 
@@ -30,7 +31,7 @@ def build_database(inp_db):
 def databaseDict(*args):
 
     databaseDict = {}
-    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'],'youtube' : [None],'database' : 'must_read/'}})
+    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'], 'youtube' : [None], 'pdf' : ['analysis_notes_Yero.pdf'], 'database' : 'must_read/'}})
 
     for arg in args:
         for key,val in arg.items():
@@ -58,7 +59,7 @@ def create_database(pbar,layout,button,*args):
     for dir in importDict:
         #print("dir: ",dir)
         for key in importDict[dir]:
-            #print("key: ",key)
+            print("key: ",key)
             if key == 'bookmarks':
                 #print("bookmarks: ", importDict[dir][key])
                 bm_folder = importDict[dir][key]
@@ -68,13 +69,17 @@ def create_database(pbar,layout,button,*args):
                 yt_folder = importDict[dir][key]
                 button.setText("Updating youtube data...")
                 y_df = youtube.import_playlist(yt_folder,pbar)
+            elif key == 'pdf':
+                print("pdf: ", importDict[dir][key])
+                pdf_folder = importDict[dir][key]
+                p_df = pdf.import_pdf(pdf_folder,pbar,button)
             elif key == 'database':
                 #print("database: ", importDict[dir][key])
                 database = importDict[dir][key]
             else:
                 print('{} not found'.format(key))
                 
-        df = pd.concat([b_df,y_df], ignore_index=True)
+        df = pd.concat([b_df,y_df,p_df], ignore_index=True)
         df  = df.reindex(sorted(df.columns),axis=1)
 
         try:
