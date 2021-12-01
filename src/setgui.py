@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-30 12:54:31 trottar"
+# Time-stamp: "2021-12-01 03:12:11 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -19,6 +19,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import parse_qs, urlparse
 import urllib.request
 import datetime
+import subprocess
 import sys,json, time
 
 from random import randint
@@ -116,7 +117,7 @@ class GUI():
 
             return up_d
         
-        #argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'database' : 'test/'}}
+        #argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'pdf' : ['analysis_notes_Yero.pdf'],'database' : 'test/'}}
         argv = update_argv()
 
         def add_topic(name,bookmarks,youtube,pdf):
@@ -310,7 +311,11 @@ class GUI():
                                     def OpenLink(url):
                                         url = url.split('URL:')[1]
                                         print(url)
-                                        web.open(url)
+                                        if url.split('TYPE:')[1] == 'pdf':
+                                            cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
+                                            subprocess.run(cmd)
+                                        else:
+                                            web.open(url)
                                     listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem().toolTip()))
                                     listWidget.setWordWrap(True)
                                     mainWindow.setCentralWidget(listWidget)

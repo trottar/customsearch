@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-30 12:59:15 trottar"
+# Time-stamp: "2021-12-01 03:10:44 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -31,7 +31,7 @@ def build_database(inp_db):
 def databaseDict(*args):
 
     databaseDict = {}
-    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'], 'youtube' : [None], 'pdf' : ['analysis_notes_Yero.pdf'], 'database' : 'must_read/'}})
+    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'], 'youtube' : [None], 'pdf' : [None], 'database' : 'must_read/'}})
 
     for arg in args:
         for key,val in arg.items():

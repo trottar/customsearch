@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-30 12:30:13 trottar"
+# Time-stamp: "2021-12-01 02:35:38 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -75,7 +75,7 @@ def import_pdf(pdf,pbar,button):
             button.setText("Updating {} pdf data...".format(pdf_file))
             print("Importing data for pdf {}...".format(pdf_file))
             pdfDict.update({"title" : pdf_file.split('.pdf')[0]})
-            pdfDict.update({"url" : pdf_file})
+            pdfDict.update({"url" : PATH + pdf_file})
             pdfDict.update({"type" : "pdf"})
             with open('../database/log/database_titles.txt') as f:
                 if pdf_file in f.read():
