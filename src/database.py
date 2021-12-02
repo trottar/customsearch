@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-01 03:10:44 trottar"
+# Time-stamp: "2021-12-02 02:27:11 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -31,7 +31,7 @@ def build_database(inp_db):
 def databaseDict(*args):
 
     databaseDict = {}
-    databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'], 'youtube' : [None], 'pdf' : [None], 'database' : 'must_read/'}})
+    #databaseDict.update({'Must Read' : {'bookmarks' : ['Must Read'], 'youtube' : [None], 'pdf' : [None], 'database' : 'must_read/'}})
 
     for arg in args:
         for key,val in arg.items():
@@ -59,7 +59,7 @@ def create_database(pbar,layout,button,*args):
     for dir in importDict:
         #print("dir: ",dir)
         for key in importDict[dir]:
-            print("key: ",key)
+            #print("key: ",key)
             if key == 'bookmarks':
                 #print("bookmarks: ", importDict[dir][key])
                 bm_folder = importDict[dir][key]
@@ -70,7 +70,7 @@ def create_database(pbar,layout,button,*args):
                 button.setText("Updating youtube data...")
                 y_df = youtube.import_playlist(yt_folder,pbar)
             elif key == 'pdf':
-                print("pdf: ", importDict[dir][key])
+                #print("pdf: ", importDict[dir][key])
                 pdf_folder = importDict[dir][key]
                 p_df = pdf.import_pdf(pdf_folder,pbar,button)
             elif key == 'database':

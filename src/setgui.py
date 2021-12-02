@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 01:23:12 trottar"
+# Time-stamp: "2021-12-02 02:48:53 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -103,7 +103,7 @@ class GUI():
         mainWindow.resize(1024,768)
         mainWindow.setDockOptions(_DOCK_OPTS)
 
-        widget = QLabel("MAIN APP CONTENT AREA")
+        widget = QLabel("Welcome back, Richard!")
         widget.setMinimumSize(200,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
@@ -130,7 +130,7 @@ class GUI():
                         youtube = None
                     pdf = row.iloc[3].strip().strip("[").strip("]").strip("'")
                     if 'None' in pdf:
-                        pdf = None                        
+                        pdf = None
                     database = row.iloc[4].strip().strip("[").strip("]").strip("'")
                     up_d.update({key : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'pdf' : [pdf], 'database' : database}})
             except pd.errors.EmptyDataError:
@@ -278,15 +278,6 @@ class GUI():
                         le.setMinimumWidth(500)
 
                         def selectionchange():
-                            if cb.currentText() != 'Calculator' and cb.currentText() != 'Select...' :
-                                with open('log/search_history.log') as f:
-                                    history = f.read().splitlines()
-                                completer = QCompleter(history)
-                                completer.setCaseSensitivity(Qt.CaseInsensitive)
-                                le.setCompleter(completer)
-                            else:
-                                completer = QCompleter([])
-                                le.setCompleter(completer)
                             print("Current selection: ",cb.currentText())
                             return cb.currentText()
                         
@@ -297,7 +288,6 @@ class GUI():
                                 scrollWidget = QListWidget()
                                 listWidget = QListWidget()
                                 listWidgetItem = QListWidgetItem("Select from dropdown menu...")
-                                listWidgetItem.setFlags(Qt.ItemIsSelectable)
                                 listWidget.addItem(listWidgetItem)
                                 listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)
@@ -363,67 +353,94 @@ class GUI():
                                     scrollWidget.setStyleSheet("background : lightgrey;")
                                     mainWindow.setCentralWidget(scrollWidget)
                                     return results
+                                
                                 else:
                                     results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
-                                    scrollWidget = QListWidget()
-                                    listWidget = QListWidget()
-                                    listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
-                                    listWidget.addItem(listWidgetItem)
-                                    listWidget.setStyleSheet("border : none;")
-                                    scroll_bar = QScrollArea(scrollWidget)                                    
-                                    scrollAreaWidgetContents = QWidget()
-                                    scroll_bar.setWidget(scrollAreaWidgetContents)
-                                    scroll_bar.setMinimumHeight(635)
-                                    scroll_bar.setMinimumWidth(720)
-                                    layout = QHBoxLayout(scrollAreaWidgetContents)
+                                    if results.empty:
+                                        print("!!!!!",results)
+                                        scrollWidget = QListWidget()
+                                        listWidget = QListWidget()
+                                        listWidgetItem = QListWidgetItem("Please enter valid keyword...")
+                                        listWidget.addItem(listWidgetItem)
+                                        listWidget.setStyleSheet("border : none;")
+                                        scroll_bar = QScrollArea(scrollWidget)
+                                        scrollAreaWidgetContents = QWidget()
+                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+20, listWidget.sizeHintForRow(0)+20))
+                                        scroll_bar.setWidget(scrollAreaWidgetContents)
+                                        scroll_bar.setMinimumHeight(635)
+                                        scroll_bar.setMinimumWidth(720)
+                                        layout = QHBoxLayout(scrollAreaWidgetContents)
+                                        layout.addWidget(listWidget)
+                                        scrollWidget.setStyleSheet("background : lightgrey;")
+                                        mainWindow.setCentralWidget(scrollWidget)
+                                    else:
+                                        scrollWidget = QListWidget()
+                                        listWidget = QListWidget()
+                                        listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
+                                        listWidget.addItem(listWidgetItem)
+                                        listWidget.setStyleSheet("border : none;")
+                                        scroll_bar = QScrollArea(scrollWidget)                                    
+                                        scrollAreaWidgetContents = QWidget()
+                                        scroll_bar.setWidget(scrollAreaWidgetContents)
+                                        scroll_bar.setMinimumHeight(635)
+                                        scroll_bar.setMinimumWidth(720)
+                                        layout = QHBoxLayout(scrollAreaWidgetContents)
 
-                                    for i,row in results.iterrows():
-                                        with open('log/search_history.log', 'r+') as f:
-                                            if u_inp not in f.read():
-                                                f.write(u_inp + '\n')
-                                        text = row['url'].to_string(index=False)
-                                        #print(text)
-                                        if row['type'].to_string(index=False) == 'youtube':
-                                            try:
-                                                with urllib.request.urlopen(text) as response:
-                                                    response_text = response.read()
-                                                    data = json.loads(response_text.decode())
-                                            except urllib.error.HTTPError as e:
-                                                if e.code in (..., 403, ...):
-                                                    continue
-                                            soup = BeautifulSoup(data['html'],"html.parser")
-                                            url = soup.find("iframe")["src"]
-                                            url_title = row['title'].to_string(index=False)
-                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
-                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
-                                            listWidget.addItem(listWidgetItem)
-                                            scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
-                                        else:
-                                            url = row['url'].to_string(index=False)
-                                            url_title = row['title'].to_string(index=False)
-                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
-                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
-                                            listWidget.addItem(listWidgetItem)
-                                            scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
-                                    def OpenLink(listwidget,url):
-                                        if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
-                                            print("")
-                                        else:
-                                            url = url.split('URL:')[1]
-                                            print(url)
-                                            if url.split('TYPE:')[1] == 'pdf':
-                                                cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
-                                                subprocess.run(cmd)
+                                        for i,row in results.iterrows():
+                                            with open('log/search_history.log', 'r+') as f:
+                                                if u_inp not in f.read():
+                                                    f.write(u_inp + '\n')
+                                            text = row['url'].to_string(index=False)
+                                            if row['type'].to_string(index=False) == 'youtube':
+                                                try:
+                                                    with urllib.request.urlopen(text) as response:
+                                                        response_text = response.read()
+                                                        data = json.loads(response_text.decode())
+                                                except urllib.error.HTTPError as e:
+                                                    if e.code in (..., 403, ...):
+                                                        continue
+                                                soup = BeautifulSoup(data['html'],"html.parser")
+                                                url = soup.find("iframe")["src"]
+                                                url_title = row['title'].to_string(index=False)
+                                                listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                                listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                                listWidget.addItem(listWidgetItem)
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
+
                                             else:
-                                                web.open(url)
-                           
-                                    listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
-                                    listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
-                                    layout.addWidget(listWidget)
-                                    scrollWidget.setStyleSheet("background : lightgrey;")
-                                    mainWindow.setCentralWidget(scrollWidget)
+                                                url = row['url'].to_string(index=False)
+                                                url_title = row['title'].to_string(index=False)
+                                                listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                                listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                                listWidget.addItem(listWidgetItem)
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
+
+                                        def OpenLink(listwidget,url):
+                                            if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
+                                                print("")
+                                            else:
+                                                url = url.split('URL:')[1]
+                                                print(url)
+                                                if url.split('TYPE:')[1] == 'pdf':
+                                                    cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
+                                                    subprocess.run(cmd)
+                                                else:
+                                                    web.open(url)
+
+                                        listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        layout.addWidget(listWidget)
+                                        scrollWidget.setStyleSheet("background : lightgrey;")
+
+                                        mainWindow.setCentralWidget(scrollWidget)
                                     return results
 
+                        with open('log/search_history.log') as f:
+                            history = f.read().splitlines()
+                        completer = QCompleter(history)
+                        completer.setCaseSensitivity(Qt.CaseInsensitive)
+                        le.setCompleter(completer)
+                                
                         cb = QComboBox()
                         cb.setMaximumWidth(200)
                         cb.addItem('Select...')
