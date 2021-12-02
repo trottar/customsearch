@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 00:57:27 trottar"
+# Time-stamp: "2021-12-02 01:23:12 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -276,8 +276,17 @@ class GUI():
                         layout = QFormLayout()
                         le = QLineEdit()
                         le.setMinimumWidth(500)
-                        
+
                         def selectionchange():
+                            if cb.currentText() != 'Calculator' and cb.currentText() != 'Select...' :
+                                with open('log/search_history.log') as f:
+                                    history = f.read().splitlines()
+                                completer = QCompleter(history)
+                                completer.setCaseSensitivity(Qt.CaseInsensitive)
+                                le.setCompleter(completer)
+                            else:
+                                completer = QCompleter([])
+                                le.setCompleter(completer)
                             print("Current selection: ",cb.currentText())
                             return cb.currentText()
                         
@@ -302,6 +311,7 @@ class GUI():
                                 scrollWidget.setStyleSheet("background : lightgrey;")
                                 mainWindow.setCentralWidget(scrollWidget)
                                 return results
+                            
                             elif selectionchange() == "Calculator":
                                 def CopyLink(results):
                                     clipboard = QApplication.clipboard()
@@ -325,6 +335,7 @@ class GUI():
                                 scrollWidget.setStyleSheet("background : lightgrey;")
                                 mainWindow.setCentralWidget(scrollWidget)                        
                                 return results
+                            
                             else:
                                 def CopyLink(listwidget,url):
                                     if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
@@ -413,14 +424,13 @@ class GUI():
                                     mainWindow.setCentralWidget(scrollWidget)
                                     return results
 
-                        le.returnPressed.connect(onRet)
-
                         cb = QComboBox()
                         cb.setMaximumWidth(200)
                         cb.addItem('Select...')
                         cb.addItem('Calculator')
                         cb.addItems(list(database.databaseDict(argv).keys()))
                         cb.currentIndexChanged.connect(selectionchange)
+                        le.returnPressed.connect(onRet)
                         layout.addRow(le,cb)
                         dock = QDockWidget("Search keyword below")
                         dock.setMinimumHeight(25)
