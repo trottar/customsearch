@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 02:48:53 trottar"
+# Time-stamp: "2021-12-02 03:15:13 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -355,9 +355,8 @@ class GUI():
                                     return results
                                 
                                 else:
-                                    results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
+                                    results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])                                    
                                     if results.empty:
-                                        print("!!!!!",results)
                                         scrollWidget = QListWidget()
                                         listWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Please enter valid keyword...")
@@ -373,6 +372,7 @@ class GUI():
                                         layout.addWidget(listWidget)
                                         scrollWidget.setStyleSheet("background : lightgrey;")
                                         mainWindow.setCentralWidget(scrollWidget)
+                                        
                                     else:
                                         scrollWidget = QListWidget()
                                         listWidget = QListWidget()
@@ -385,7 +385,7 @@ class GUI():
                                         scroll_bar.setMinimumHeight(635)
                                         scroll_bar.setMinimumWidth(720)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
-
+                                        
                                         for i,row in results.iterrows():
                                             with open('log/search_history.log', 'r+') as f:
                                                 if u_inp not in f.read():
@@ -405,15 +405,27 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
-
-                                            else:
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                
+                                            elif row['type'].to_string(index=False) == 'bookmark':
                                                 url = row['url'].to_string(index=False)
                                                 url_title = row['title'].to_string(index=False)
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*i+20))
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*(i+1)+20))
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                
+                                            elif row['type'].to_string(index=False) == 'pdf':
+                                                url = row['url'].to_string(index=False)
+                                                url_title = row['title'].to_string(index=False)
+                                                listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                                listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                                listWidget.addItem(listWidgetItem)
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                                                     
+                                            else:
+                                                print("ERROR: Type {} not found".format(row['type'].to_string(index=False)))
 
                                         def OpenLink(listwidget,url):
                                             if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
