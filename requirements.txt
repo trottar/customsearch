@@ -13,3 +13,5 @@ libleptonica-dev
 tesseract-ocr
 libtesseract-dev
 evince
+genius
+gnome-genius
