@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-25 11:44:57 trottar"
+# Time-stamp: "2021-12-03 14:51:35 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -41,16 +41,18 @@ def import_bookmarks(inp_folder,pbar,button):
                     #print("\t-> ",url.name.lower())
                     pbar.setMaximum(len(folder.urls)-1)
                     pbar.setValue(i)
-                    QApplication.processEvents() 
-                    tools.progressBar(i, len(folder.urls)-1)
+                    QApplication.processEvents()
+                    if len(folder.urls) > 1:
+                        tools.progressBar(i, len(folder.urls)-1)
+                    else:
+                        tools.progressBar(i, len(folder.urls))
                     #print(url, "\n\n","-"*70)
                     url = url.url
                     try:
                         with urllib.request.urlopen(url) as response:
                             html = response.read()
-                    except urllib.error.HTTPError as e:
-                        if e.code in (..., 403, ...):
-                            continue
+                    except (urllib.error.HTTPError, urllib.error.URLError) as e:
+                        continue
                     soup = BeautifulSoup(html, "html.parser")
                     if val == 'Must Read':
                         text = 'MR: '

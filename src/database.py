@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 02:27:11 trottar"
+# Time-stamp: "2021-12-03 14:32:01 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -38,7 +38,7 @@ def databaseDict(*args):
             #print(val['database'])
             build_database(val['database'])
         databaseDict.update(arg)
-
+    print('\n\n')
     return databaseDict
 
 
@@ -95,7 +95,7 @@ def create_database(pbar,layout,button,*args):
                 dfRow = dfRow.T
                 dfRow.to_csv("{0}_{1}.{2}".format(out_f,i,'csv'),index=False,header=True,mode='w')
         except:
-            print('No new entries to add for {}...'.format(dir))
+            print('No new entries to add for {}...\n\n'.format(dir))
             
     '''
     button.setText("Updating bookmark data...")

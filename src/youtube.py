@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-26 14:53:34 trottar"
+# Time-stamp: "2021-12-03 14:45:11 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -82,8 +82,11 @@ def import_playlist(playlist,pbar):
                         continue
                 pbar.setMaximum(len(pl_urls)-1)
                 pbar.setValue(i)
-                QApplication.processEvents() 
-                tools.progressBar(i, len(pl_urls)-1)
+                QApplication.processEvents()
+                if len(pl_urls) > 1:
+                    tools.progressBar(i, len(pl_urls)-1)
+                else:
+                    tools.progressBar(i, len(pl_urls))
                 try:
                     transcript = YouTubeTranscriptApi.get_transcript(v_id)
                 except:

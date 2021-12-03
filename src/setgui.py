@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 03:15:13 trottar"
+# Time-stamp: "2021-12-03 16:15:15 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -109,8 +109,12 @@ class GUI():
         mainWindow.setCentralWidget(widget)
             
         def update_log(argv):
-            s_argv = {i : argv[i] for i in sorted(argv.keys())}
-            df = pd.DataFrame.from_dict(s_argv, orient='index')
+            argv = {i : argv[i] for i in sorted(argv.keys())}
+            for i in sorted(argv.keys()):
+                for key in argv[i]:
+                    if key != 'database':
+                        argv[i][key] = str(argv[i][key]).replace(',','&').replace(" '","'")
+            df = pd.DataFrame.from_dict(argv, orient='index')
             df = df.to_csv('log/database_topics.log')
             sys.exit(0)
         
@@ -120,19 +124,26 @@ class GUI():
             try:
                 up_d = {}
                 inp_d = pd.read_csv(f_name)
+                result = {}
                 for i,row in inp_d.iterrows():
                     key = row.iloc[0].strip()
-                    bookmarks = row.iloc[1].strip().strip("[").strip("]").strip("'")
+                    bookmarks = row.iloc[1].strip().strip("[").strip("]").replace("'",'').replace('&',',')
                     if 'None' in bookmarks:
-                        bookmarks = None
-                    youtube = row.iloc[2].strip().strip("[").strip("]").strip("'")
+                        bookmarks = [None]
+                    else:
+                        bookmarks = bookmarks.split(',')
+                    youtube = row.iloc[2].strip().strip("[").strip("]").replace("'",'').replace('&',',')
                     if 'None' in youtube:
-                        youtube = None
-                    pdf = row.iloc[3].strip().strip("[").strip("]").strip("'")
+                        youtube = [None]
+                    else:
+                        youtube = youtube.split(',')
+                    pdf = row.iloc[3].strip().strip("[").strip("]").replace("'",'').replace('&',',')
                     if 'None' in pdf:
-                        pdf = None
+                        pdf = [None]
+                    else:
+                        pdf = pdf.split(',')
                     database = row.iloc[4].strip().strip("[").strip("]").strip("'")
-                    up_d.update({key : {'bookmarks' : [bookmarks], 'youtube' : [youtube], 'pdf' : [pdf], 'database' : database}})
+                    up_d.update({key : {'bookmarks' : bookmarks, 'youtube' : youtube, 'pdf' : pdf, 'database' : database}})
             except pd.errors.EmptyDataError:
                 up_d = {}
 
@@ -144,21 +155,21 @@ class GUI():
         def add_topic(name,bookmarks,youtube,pdf):
             database = name.replace(' ','_').lower()
             if ',' in bookmarks:
-                bookmarks = bookmarks.split(',')
+                bookmarks = str(bookmarks.split(',')).replace(',','&').strip('')
             elif ',' not in bookmarks:
                 if not bookmarks:                
                     bookmarks = [None]
                 else:
                     bookmarks = [bookmarks]
             if ',' in youtube:
-                youtube = youtube.split(',')
+                youtube = str(youtube.split(',')).replace(',','&').strip('')
             elif ',' not in youtube:
                 if not youtube:                
                     youtube = [None]
                 else:
                     youtube = [youtube]
             if ',' in pdf:
-                pdf = pdf.split(',')
+                pdf = str(pdf.split(',')).replace(',','&').strip('')
             elif ',' not in pdf:
                 if not pdf:                
                     pdf = [None]
@@ -213,7 +224,7 @@ class GUI():
                         
                     if _DOCK_COUNT == 5:
                         layout = QFormLayout()
-                        button = QPushButton("Submit (window will close on update)")
+                        button = QPushButton("Submit (window will close)")
                         le1 = QLineEdit()
                         le2 = QLineEdit()
                         le3 = QLineEdit()

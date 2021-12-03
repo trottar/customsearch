@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 01:57:20 trottar"
+# Time-stamp: "2021-12-03 14:45:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -57,8 +57,11 @@ def import_pdf(pdfs,pbar,button):
                     if '.ppm' in file and 'image' not in file:
                         pbar.setMaximum(len(sorted(os.listdir(PATH)))-1)
                         pbar.setValue(j)
-                        QApplication.processEvents() 
-                        tools.progressBar(j, len(sorted(os.listdir(PATH)))-1)
+                        QApplication.processEvents()
+                        if len(sorted(os.listdir(PATH))) > 1:
+                            tools.progressBar(j, len(sorted(os.listdir(PATH)))-1)
+                        else:
+                            tools.progressBar(j, len(sorted(os.listdir(PATH)))-1)
                         os.rename(PATH + file, PATH + 'image' + str(i) + '-' + str(j) + '.ppm')
                         j += 1
                 j = 0
