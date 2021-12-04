@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-03 16:15:15 trottar"
+# Time-stamp: "2021-12-04 01:05:44 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -448,7 +448,7 @@ class GUI():
                                                     cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
                                                     subprocess.run(cmd)
                                                 else:
-                                                    web.open(url)
+                                                    web.open(url.split('| TYPE:')[0].strip(' '))
 
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))

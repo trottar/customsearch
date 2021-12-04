@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-03 14:45:11 trottar"
+# Time-stamp: "2021-12-04 01:19:52 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -44,7 +44,10 @@ def import_playlist(playlist,pbar):
                 playlistId = playlist_id,
                 maxResults = 50
             )
-            response = request.execute()
+            try:
+                response = request.execute()
+            except googleapiclient.errors.HttpError:
+                continue
 
             playlist_items = []
             while request is not None:
