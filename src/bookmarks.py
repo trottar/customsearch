@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-03 14:51:35 trottar"
+# Time-stamp: "2021-12-03 18:44:32 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -51,9 +51,12 @@ def import_bookmarks(inp_folder,pbar,button):
                     try:
                         with urllib.request.urlopen(url) as response:
                             html = response.read()
-                    except (urllib.error.HTTPError, urllib.error.URLError) as e:
+                    except (urllib.error.HTTPError, urllib.error.URLError,ConnectionError) as e:
                         continue
-                    soup = BeautifulSoup(html, "html.parser")
+                    try:
+                        soup = BeautifulSoup(html, "html.parser")
+                    except NotImplementedError:
+                        continue
                     if val == 'Must Read':
                         text = 'MR: '
                     else:
