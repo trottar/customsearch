@@ -3,13 +3,15 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-04 01:05:44 trottar"
+# Time-stamp: "2021-12-16 07:57:33 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
 #
 # Copyright (c) trottar
 #
+import PyQt5
+print(PyQt5.__file__)
 import pandas as pd
 import webbrowser as web
 from PyQt5.QtCore import *
@@ -26,6 +28,7 @@ from random import randint
 
 import searchfiles
 import database
+import rss
 
 # Set to False - Standard docking of widgets around the main content area
 # Set to True - Sub MainWindows each with their own private docking 
@@ -73,40 +76,31 @@ class ProgressBar(QProgressBar):
             return
         self.setValue(self.value() + 1)
 
-def clickable(widget):
-
-    class Filter(QObject):
-    
-        clicked = pyqtSignal()
-        
-        def eventFilter(self, obj, event):
-        
-            if obj == widget:
-                if event.type() == QEvent.MouseButtonRelease:
-                    if obj.rect().contains(event.pos()):
-                        self.clicked.emit()
-                        # The developer can opt for .emit(obj) to get the object within the slot.
-                        return True
-            
-            return False
-    
-    filter = Filter(widget)
-    widget.installEventFilter(filter)
-    return filter.clicked        
-
 class GUI():
         
     def mainwindow():
 
 
         mainWindow = QMainWindow()
-        mainWindow.resize(1024,768)
+        mainWindow.resize(1224,968)
         mainWindow.setDockOptions(_DOCK_OPTS)
 
         widget = QLabel("Welcome back, Richard!")
         widget.setMinimumSize(200,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
+        mainWindow.setStyleSheet('''
+        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow, QComboBox QAbstractItemView{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
+        QComboBox{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120); background-color: rgb(0, 50, 50);}
+        QDockWidget:close-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
+        QDockWidget:close-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
+        QDockWidget:float-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
+        QDockWidget:float-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
+        QLineEdit:focus, QComboBox:hover, QComboBox QAbstractItemView:enabled{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
+        QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 120, 120);}
+        QComboBox:drop-down{border-width: 0px;}
+        QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt;}
+        ''')
             
         def update_log(argv):
             argv = {i : argv[i] for i in sorted(argv.keys())}
@@ -193,7 +187,7 @@ class GUI():
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
 
-                    if _DOCK_COUNT == 4:
+                    if _DOCK_COUNT == 3:
                         def article_random():
                             
                             results = searchfiles.searchfiles('mr',database.databaseDict(argv)['Must Read']['database'])
@@ -213,15 +207,61 @@ class GUI():
                         label.setOpenExternalLinks(True)
                         label.setWordWrap(True)
                         label.setMinimumHeight(25)
-                        label.setMaximumHeight(50)
+                        label.setMaximumHeight(100)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
                         dock.setMaximumHeight(25)
-                        dock.setMinimumHeight(50)
-                        dock.setMinimumWidth(300)
+                        dock.setMinimumHeight(100)
+                        dock.setMinimumWidth(300)            
                         dock.setWidget(sub)
                         window.addDockWidget(pos, dock)
-                        
+                    
+                    if _DOCK_COUNT == 4:
+                        def CopyLink(listwidget,url):
+                            url = url.split('URL:')[1].split('| TYPE:')[0].strip(' ')
+                            print(url)
+                            clipboard = QApplication.clipboard()
+                            clipboard.setText(url)
+                        scrollWidget = QListWidget()
+                        listWidget = QListWidget()
+                        scroll_bar = QScrollArea(scrollWidget)
+                        scrollAreaWidgetContents = QWidget()
+                        scroll_bar.setWidget(scrollAreaWidgetContents)
+                        scroll_bar.setMinimumHeight(470)
+                        scroll_bar.setMinimumWidth(490)
+                        scroll_bar.setMaximumHeight(470)
+                        scroll_bar.setMaximumWidth(490)
+                        scroll_bar.setStyleSheet("border-width: 0px;")
+                        scroll_bar.move(5,5)
+                        layout = QHBoxLayout(scrollAreaWidgetContents)
+                        dock = QDockWidget("arXiv RSS...")
+                        dock.setMaximumHeight(500)
+                        dock.setMaximumWidth(500)
+                        dock.setMinimumHeight(500)
+                        dock.setMinimumWidth(500)
+                        for i,row in rss.import_rss().iterrows():
+                            url = row['url']
+                            url_title = row['title']
+                            listWidgetItem = QListWidgetItem("{0}. {1}".format((i+1),url_title))
+                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type']))
+                            listWidget.addItem(listWidgetItem)
+                        def OpenLink(listwidget,url):
+                            url = url.split('URL:')[1]
+                            print(url)
+                            if url.split('TYPE:')[1] == 'pdf':
+                                cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
+                                subprocess.run(cmd)
+                            else:
+                                web.open(url.split('| TYPE:')[0].strip(' '))
+                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 470))
+                        scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
+                        listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                        layout.addWidget(listWidget)
+                        sub.setCentralWidget(scrollWidget)
+                        dock.setWidget(sub)
+                        window.addDockWidget(pos, dock)
+                                            
                     if _DOCK_COUNT == 5:
                         layout = QFormLayout()
                         button = QPushButton("Submit (window will close)")
@@ -275,8 +315,8 @@ class GUI():
                             button.setEnabled(True)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
                         dock.setMinimumHeight(25)
-                        dock.setMinimumWidth(300)
-                        dock.setMaximumWidth(300)
+                        dock.setMinimumWidth(500)
+                        dock.setMaximumWidth(500)
                         dock.setFeatures(QDockWidget.DockWidgetMovable)
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
@@ -287,6 +327,7 @@ class GUI():
                         layout = QFormLayout()
                         le = QLineEdit()
                         le.setMinimumWidth(500)
+                        le.setMaximumWidth(500)
 
                         def selectionchange():
                             print("Current selection: ",cb.currentText())
@@ -303,13 +344,12 @@ class GUI():
                                 listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)
                                 scrollAreaWidgetContents = QWidget()
-                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+20, listWidget.sizeHintForRow(0)+20))
+                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                 scroll_bar.setWidget(scrollAreaWidgetContents)
-                                scroll_bar.setMinimumHeight(635)
-                                scroll_bar.setMinimumWidth(720)
+                                scroll_bar.setMinimumHeight(833)
+                                scroll_bar.setMinimumWidth(718)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
                                 layout.addWidget(listWidget)
-                                scrollWidget.setStyleSheet("background : lightgrey;")
                                 mainWindow.setCentralWidget(scrollWidget)
                                 return results
                             
@@ -326,14 +366,13 @@ class GUI():
                                 listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)                                
                                 scrollAreaWidgetContents = QWidget()
-                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+20, listWidget.sizeHintForRow(0)+20))
+                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                 scroll_bar.setWidget(scrollAreaWidgetContents)
-                                scroll_bar.setMinimumHeight(635)
-                                scroll_bar.setMinimumWidth(720)
+                                scroll_bar.setMinimumHeight(833)
+                                scroll_bar.setMinimumWidth(718)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
                                 listWidget.itemClicked.connect(lambda: CopyLink(results))
                                 layout.addWidget(listWidget)
-                                scrollWidget.setStyleSheet("background : lightgrey;")
                                 mainWindow.setCentralWidget(scrollWidget)                        
                                 return results
                             
@@ -355,13 +394,12 @@ class GUI():
                                     listWidget.setStyleSheet("border : none;")
                                     scroll_bar = QScrollArea(scrollWidget)
                                     scrollAreaWidgetContents = QWidget()
-                                    scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+20, listWidget.sizeHintForRow(0)+20))
+                                    scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                     scroll_bar.setWidget(scrollAreaWidgetContents)
-                                    scroll_bar.setMinimumHeight(635)
-                                    scroll_bar.setMinimumWidth(720)
+                                    scroll_bar.setMinimumHeight(833)
+                                    scroll_bar.setMinimumWidth(718)
                                     layout = QHBoxLayout(scrollAreaWidgetContents)
                                     layout.addWidget(listWidget)
-                                    scrollWidget.setStyleSheet("background : lightgrey;")
                                     mainWindow.setCentralWidget(scrollWidget)
                                     return results
                                 
@@ -375,13 +413,12 @@ class GUI():
                                         listWidget.setStyleSheet("border : none;")
                                         scroll_bar = QScrollArea(scrollWidget)
                                         scrollAreaWidgetContents = QWidget()
-                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+20, listWidget.sizeHintForRow(0)+20))
+                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                                        scroll_bar.setMinimumHeight(635)
-                                        scroll_bar.setMinimumWidth(720)
+                                        scroll_bar.setMinimumHeight(833)
+                                        scroll_bar.setMinimumWidth(718)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
                                         layout.addWidget(listWidget)
-                                        scrollWidget.setStyleSheet("background : lightgrey;")
                                         mainWindow.setCentralWidget(scrollWidget)
                                         
                                     else:
@@ -390,11 +427,12 @@ class GUI():
                                         listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
                                         listWidget.addItem(listWidgetItem)
                                         listWidget.setStyleSheet("border : none;")
-                                        scroll_bar = QScrollArea(scrollWidget)                                    
+                                        scroll_bar = QScrollArea(scrollWidget)
                                         scrollAreaWidgetContents = QWidget()
+                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
                                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                                        scroll_bar.setMinimumHeight(635)
-                                        scroll_bar.setMinimumWidth(720)
+                                        scroll_bar.setMinimumHeight(833)
+                                        scroll_bar.setMinimumWidth(718)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
                                         
                                         for i,row in results.iterrows():
@@ -416,7 +454,7 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                 
                                             elif row['type'].to_string(index=False) == 'bookmark':
                                                 url = row['url'].to_string(index=False)
@@ -425,7 +463,7 @@ class GUI():
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
                                                 scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*(i+1)+20))
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                 
                                             elif row['type'].to_string(index=False) == 'pdf':
                                                 url = row['url'].to_string(index=False)
@@ -433,7 +471,7 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
+                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                                                      
                                             else:
                                                 print("ERROR: Type {} not found".format(row['type'].to_string(index=False)))
@@ -449,11 +487,11 @@ class GUI():
                                                     subprocess.run(cmd)
                                                 else:
                                                     web.open(url.split('| TYPE:')[0].strip(' '))
-
+                                                    
+                                        scrollAreaWidgetContents.setStyleSheet("border : none;")
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         layout.addWidget(listWidget)
-                                        scrollWidget.setStyleSheet("background : lightgrey;")
 
                                         mainWindow.setCentralWidget(scrollWidget)
                                     return results
@@ -462,6 +500,7 @@ class GUI():
                             history = f.read().splitlines()
                         completer = QCompleter(history)
                         completer.setCaseSensitivity(Qt.CaseInsensitive)
+                        completer.popup().setStyleSheet("color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120); background-color: rgb(0, 50, 50);")
                         le.setCompleter(completer)
                                 
                         cb = QComboBox()
@@ -482,11 +521,8 @@ class GUI():
                         
                     elif _DOCK_COUNT == 2:
                         dock = QDockWidget("")
-                        #dock.setMaximumHeight(25)
-                        dock.setMinimumHeight(25)
                         dock.setMinimumWidth(300)
-                        dock.setMaximumWidth(300)
-                        dock.setMaximumHeight(500)
+                        dock.setMinimumHeight(25)
                         dock.setWidget(sub)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
                         window.addDockWidget(pos, dock)

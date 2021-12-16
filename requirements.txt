@@ -8,7 +8,9 @@ pyqt5==5.14.0
 openpyxl
 pdf2image==1.16.0
 pytesseract==0.3.8
+feedparser
 # Linux
+# For PyQt5 install, https://wiki.qt.io/Building_Qt_5_from_Git
 libleptonica-dev
 tesseract-ocr
 libtesseract-dev
