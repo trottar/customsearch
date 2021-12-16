@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-16 07:57:33 trottar"
+# Time-stamp: "2021-12-16 11:01:46 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -76,6 +76,13 @@ class ProgressBar(QProgressBar):
             return
         self.setValue(self.value() + 1)
 
+class CompleterDelegate(QStyledItemDelegate):
+    def initStyleOption(self, option, index):
+        super(CompleterDelegate, self).initStyleOption(option, index)
+        option.palette.setColor(QPalette.Active, QPalette.Highlight, QColor(150, 150, 150))
+        option.palette.setColor(QPalette.Active, QPalette.HighlightedText, QColor(0, 0, 0))
+        option.displayAlignment = Qt.AlignCenter
+        
 class GUI():
         
     def mainwindow():
@@ -90,16 +97,16 @@ class GUI():
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
         mainWindow.setStyleSheet('''
-        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow, QComboBox QAbstractItemView{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
-        QComboBox{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120); background-color: rgb(0, 50, 50);}
+        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
         QDockWidget:close-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
         QDockWidget:close-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
         QDockWidget:float-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
         QDockWidget:float-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
-        QLineEdit:focus, QComboBox:hover, QComboBox QAbstractItemView:enabled{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
+        QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
+        QListWidget:item:selected, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(41, 150, 150);  background-color: rgb(50, 50, 50);}
         QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 120, 120);}
         QComboBox:drop-down{border-width: 0px;}
-        QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt;}
+        QComboBox, QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt;}
         ''')
             
         def update_log(argv):
@@ -191,7 +198,7 @@ class GUI():
                         def article_random():
                             
                             results = searchfiles.searchfiles('mr',database.databaseDict(argv)['Must Read']['database'])
-                            randnum = randint(0, len(results.index))
+                            randnum = randint(0, len(results.index)-1)
                             for i,row in results.iterrows():
                                 if randnum == i:
                                     url = row['url'].to_string(index=False)
@@ -210,8 +217,8 @@ class GUI():
                         label.setMaximumHeight(100)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
-                        dock.setMaximumHeight(25)
                         dock.setMinimumHeight(100)
+                        dock.setMaximumHeight(100)
                         dock.setMinimumWidth(300)            
                         dock.setWidget(sub)
                         window.addDockWidget(pos, dock)
@@ -239,12 +246,17 @@ class GUI():
                         dock.setMaximumWidth(500)
                         dock.setMinimumHeight(500)
                         dock.setMinimumWidth(500)
-                        for i,row in rss.import_rss().iterrows():
-                            url = row['url']
-                            url_title = row['title']
-                            listWidgetItem = QListWidgetItem("{0}. {1}".format((i+1),url_title))
-                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type']))
+                        try:
+                            for i,row in rss.import_rss().iterrows():
+                                url = row['url']
+                                url_title = row['title']
+                                listWidgetItem = QListWidgetItem("{0}. {1}".format((i+1),url_title))
+                                listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type']))
+                                listWidget.addItem(listWidgetItem)
+                        except:
+                            listWidgetItem = QListWidgetItem("No internet connection")
                             listWidget.addItem(listWidgetItem)
+                            
                         def OpenLink(listwidget,url):
                             url = url.split('URL:')[1]
                             print(url)
@@ -266,14 +278,22 @@ class GUI():
                         layout = QFormLayout()
                         button = QPushButton("Submit (window will close)")
                         le1 = QLineEdit()
+                        la1 = QLabel("Name: ")
+                        la1.setStyleSheet("border-width: 0px")
                         le2 = QLineEdit()
+                        la2 = QLabel("bookmarks: ")
+                        la2.setStyleSheet("border-width: 0px")
                         le3 = QLineEdit()
+                        la3 = QLabel("youtube: ")
+                        la3.setStyleSheet("border-width: 0px")
                         le4 = QLineEdit()
-                        layout.addRow("Name: ",le1)
-                        layout.addRow("bookmarks: ",le2)
-                        layout.addRow("youtube: ",le3)
-                        layout.addRow("pdf: ",le4)
-                        layout.addRow(button)
+                        la4 = QLabel("pdf: ")
+                        la4.setStyleSheet("border-width: 0px")
+                        layout.addRow(la1,le1)
+                        layout.addRow(la2,le2)
+                        layout.addRow(la3,le3)
+                        layout.addRow(la4,le4)
+                        layout.addRow(button)                
                         def button_pressed(clicked):
                             button.setEnabled(False)
                             if not le1.text():
@@ -316,6 +336,7 @@ class GUI():
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(500)
+                        dock.setMaximumHeight(100)
                         dock.setMaximumWidth(500)
                         dock.setFeatures(QDockWidget.DockWidgetMovable)
                         window.addDockWidget(pos, dock)
@@ -344,7 +365,7 @@ class GUI():
                                 listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)
                                 scrollAreaWidgetContents = QWidget()
-                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
+                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+50))
                                 scroll_bar.setWidget(scrollAreaWidgetContents)
                                 scroll_bar.setMinimumHeight(833)
                                 scroll_bar.setMinimumWidth(718)
@@ -500,7 +521,11 @@ class GUI():
                             history = f.read().splitlines()
                         completer = QCompleter(history)
                         completer.setCaseSensitivity(Qt.CaseInsensitive)
+                        completer.setCompletionMode(QCompleter.PopupCompletion)
+                        completer.setFilterMode(Qt.MatchContains)
+                        delegate = CompleterDelegate(le)
                         completer.popup().setStyleSheet("color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120); background-color: rgb(0, 50, 50);")
+                        completer.popup().setItemDelegate(delegate)
                         le.setCompleter(completer)
                                 
                         cb = QComboBox()
