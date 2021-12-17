@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:10:41 trottar"
+# Time-stamp: "2021-12-17 07:14:38 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -98,11 +98,12 @@ class GUI():
         helpMenu = menuBar.addMenu("&Help")
         shortcutMenu = helpMenu.addMenu("Shortcuts")
         shortcutMenu.addAction("Quit: \tCtrl+q")
+        shortcutMenu.addAction("Search Bar: \tCtrl+s")
         shortcutMenu.addAction("Article of Day: \tCtrl+o")
         shortcutMenu.addAction("arXiv: \tCtrl+r")
         shortcutMenu.addAction("New Entry: \tCtrl+n")
-        shortcutMenu.addAction("Update database: \tCtrl+g")
-        shortcutMenu.addAction("Dropdown menu: \tCtrl+d")
+        shortcutMenu.addAction("Update Database: \tCtrl+g")
+        shortcutMenu.addAction("Dropdown Menu: \tCtrl+d")
         '''
         
         mainWindow.setContextMenuPolicy(Qt.ActionsContextMenu)
@@ -111,11 +112,12 @@ class GUI():
         separator.setSeparator(True)
         mainWindow.addAction(separator)
         mainWindow.addAction(QAction("Quit: \tCtrl+q",mainWindow))
+        mainWindow.addAction(QAction("Search Bar: \tCtrl+s",mainWindow))
         mainWindow.addAction(QAction("Article of Day: \tCtrl+o",mainWindow))
         mainWindow.addAction(QAction("arXiv: \tCtrl+r",mainWindow))
         mainWindow.addAction(QAction("New Entry: \tCtrl+n",mainWindow))
-        mainWindow.addAction(QAction("Update database: \tCtrl+g",mainWindow))
-        mainWindow.addAction(QAction("Dropdown menu: \tCtrl+d",mainWindow))        
+        mainWindow.addAction(QAction("Update Database: \tCtrl+g",mainWindow))
+        mainWindow.addAction(QAction("Dropdown Menu: \tCtrl+d",mainWindow))        
         
         quit_shortcut = QShortcut(QKeySequence("Ctrl+q"),mainWindow)
         quit_shortcut.activated.connect(QApplication.instance().quit)
@@ -399,6 +401,10 @@ class GUI():
                         le = QLineEdit()
                         le.setMinimumWidth(500)
                         le.setMaximumWidth(500)
+                        def select_search():
+                            le.setFocus(True)
+                        le_shortcut = QShortcut(QKeySequence("Ctrl+s"),le)
+                        le_shortcut.activated.connect(select_search)
 
                         def selectionchange():
                             print("Current selection: ",cb.currentText())
