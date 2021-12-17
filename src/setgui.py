@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-16 11:01:46 trottar"
+# Time-stamp: "2021-12-17 03:30:32 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -75,7 +75,7 @@ class ProgressBar(QProgressBar):
             del self.timer
             return
         self.setValue(self.value() + 1)
-
+        
 class CompleterDelegate(QStyledItemDelegate):
     def initStyleOption(self, option, index):
         super(CompleterDelegate, self).initStyleOption(option, index)
@@ -91,22 +91,25 @@ class GUI():
         mainWindow = QMainWindow()
         mainWindow.resize(1224,968)
         mainWindow.setDockOptions(_DOCK_OPTS)
+        
+        quit_shortcut = QShortcut(QKeySequence("Ctrl+q"),mainWindow)
+        quit_shortcut.activated.connect(QApplication.instance().quit)
 
         widget = QLabel("Welcome back, Richard!")
         widget.setMinimumSize(200,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
         mainWindow.setStyleSheet('''
-        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
-        QDockWidget:close-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
-        QDockWidget:close-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
-        QDockWidget:float-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 50, 50);}
-        QDockWidget:float-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
-        QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(0, 0, 0);  background-color: rgb(150, 150, 150);}
-        QListWidget:item:selected, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(41, 150, 150);  color: rgb(41, 150, 150);  background-color: rgb(50, 50, 50);}
-        QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120);  color: rgb(0, 0, 0);  background-color: rgb(0, 120, 120);}
+        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
+        QDockWidget:close-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
+        QDockWidget:close-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QDockWidget:float-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
+        QDockWidget:float-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
+        QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 120, 120);}
         QComboBox:drop-down{border-width: 0px;}
-        QComboBox, QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt;}
+        QComboBox, QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
         ''')
             
         def update_log(argv):
@@ -179,8 +182,7 @@ class GUI():
             argv.update({name : {'bookmarks' : bookmarks, 'youtube' : youtube, 'pdf' : pdf, 'database' : '{}/'.format(database)}})
                 
             update_log(argv)
-                    
-        
+            
         def addDocks(window, name, subDocks=True):
             global _DOCK_COUNT
             global _DOCK_RANGE
@@ -215,6 +217,11 @@ class GUI():
                         label.setWordWrap(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(100)
+                        link = url
+                        def selectlink():
+                            web.open(link.strip(' '))
+                        link_shortcut = QShortcut(QKeySequence("Ctrl+o"),label)
+                        link_shortcut.activated.connect(selectlink)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
                         dock.setMinimumHeight(100)
@@ -224,7 +231,8 @@ class GUI():
                         window.addDockWidget(pos, dock)
                     
                     if _DOCK_COUNT == 4:
-                        def CopyLink(listwidget,url):
+                        def CopyLink(listwidget,listwidgetitem,url):
+                            listwidget.clearSelection()
                             url = url.split('URL:')[1].split('| TYPE:')[0].strip(' ')
                             print(url)
                             clipboard = QApplication.clipboard()
@@ -234,9 +242,9 @@ class GUI():
                         scroll_bar = QScrollArea(scrollWidget)
                         scrollAreaWidgetContents = QWidget()
                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                        scroll_bar.setMinimumHeight(470)
+                        scroll_bar.setMinimumHeight(460)
                         scroll_bar.setMinimumWidth(490)
-                        scroll_bar.setMaximumHeight(470)
+                        scroll_bar.setMaximumHeight(460)
                         scroll_bar.setMaximumWidth(490)
                         scroll_bar.setStyleSheet("border-width: 0px;")
                         scroll_bar.move(5,5)
@@ -265,10 +273,15 @@ class GUI():
                                 subprocess.run(cmd)
                             else:
                                 web.open(url.split('| TYPE:')[0].strip(' '))
-                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 470))
+                        def select_arxiv():
+                            listWidget.setFocus(True)
+                        select_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
+                        select_shortcut.activated.connect(select_arxiv)
+                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 460))
                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
-                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                        listWidget.itemActivated.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                         layout.addWidget(listWidget)
                         sub.setCentralWidget(scrollWidget)
                         dock.setWidget(sub)
@@ -293,7 +306,11 @@ class GUI():
                         layout.addRow(la2,le2)
                         layout.addRow(la3,le3)
                         layout.addRow(la4,le4)
-                        layout.addRow(button)                
+                        layout.addRow(button)
+                        def select_le1():
+                            le1.setFocus(True)
+                        le1_shortcut = QShortcut(QKeySequence("Ctrl+n"),le1)
+                        le1_shortcut.activated.connect(select_le1)
                         def button_pressed(clicked):
                             button.setEnabled(False)
                             if not le1.text():
@@ -316,7 +333,7 @@ class GUI():
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
                         dock.setWidget(dockedWidget)
-                        dockedWidget.setLayout(layout)                        
+                        dockedWidget.setLayout(layout)
                          
                     if _DOCK_COUNT == 6:
                         layout = QFormLayout()
@@ -333,7 +350,12 @@ class GUI():
                             pbar.deleteLater()
                             button.setText('Last updated {}'.format(date.strftime("%m/%d/%Y, %H:%M:%S")))
                             button.setEnabled(True)
+                        def select_button():
+                            button.setFocus(True)
+                        button_shortcut = QShortcut(QKeySequence("Ctrl+1"),button)
+                        button_shortcut.activated.connect(select_button)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
+                        button.activated.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(500)
                         dock.setMaximumHeight(100)
@@ -362,20 +384,27 @@ class GUI():
                                 listWidget = QListWidget()
                                 listWidgetItem = QListWidgetItem("Select from dropdown menu...")
                                 listWidget.addItem(listWidgetItem)
-                                listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)
-                                scrollAreaWidgetContents = QWidget()
-                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+50))
+                                scrollAreaWidgetContents = QWidget()                                
                                 scroll_bar.setWidget(scrollAreaWidgetContents)
-                                scroll_bar.setMinimumHeight(833)
-                                scroll_bar.setMinimumWidth(718)
+                                scroll_bar.setMinimumHeight(830)
+                                scroll_bar.setMinimumWidth(700)
+                                scroll_bar.setMaximumHeight(830)
+                                scroll_bar.setMaximumWidth(700)
+                                scroll_bar.setStyleSheet("border-width: 0px;")
+                                scroll_bar.move(5,5)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
+                                #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
+                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                 layout.addWidget(listWidget)
+                                scroll_bar.setStyleSheet("border : none;")
                                 mainWindow.setCentralWidget(scrollWidget)
                                 return results
                             
                             elif selectionchange() == "Calculator":
-                                def CopyLink(results):
+                                def CopyLink(listwidget,results):
+                                    listwidget.clearSelection()
                                     clipboard = QApplication.clipboard()
                                     clipboard.setText(results)
                                 cmd = ['./Genius/run_genius.sh','{}'.format(u_inp)]
@@ -384,22 +413,28 @@ class GUI():
                                 listWidget = QListWidget()
                                 listWidgetItem = QListWidgetItem(results)
                                 listWidget.addItem(listWidgetItem)
-                                listWidget.setStyleSheet("border : none;")
                                 scroll_bar = QScrollArea(scrollWidget)                                
                                 scrollAreaWidgetContents = QWidget()
-                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                 scroll_bar.setWidget(scrollAreaWidgetContents)
-                                scroll_bar.setMinimumHeight(833)
-                                scroll_bar.setMinimumWidth(718)
+                                scroll_bar.setMinimumHeight(830)
+                                scroll_bar.setMinimumWidth(700)
+                                scroll_bar.setMaximumHeight(830)
+                                scroll_bar.setMaximumWidth(700)
+                                scroll_bar.setStyleSheet("border-width: 0px;")
+                                scroll_bar.move(5,5)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
-                                listWidget.itemClicked.connect(lambda: CopyLink(results))
+                                #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
+                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
+                                listWidget.itemClicked.connect(lambda: CopyLink(listWidget,results))
                                 layout.addWidget(listWidget)
-                                mainWindow.setCentralWidget(scrollWidget)                        
+                                mainWindow.setCentralWidget(scrollWidget)
                                 return results
                             
                             else:
-                                def CopyLink(listwidget,url):
-                                    if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
+                                def CopyLink(listwidget,listwidgetitem,url):
+                                    listwidget.clearSelection()
+                                    if listwidgetitem.text() == "Results of keyword {}...\n".format(u_inp):
                                         print("")
                                     else:
                                         url = url.split('URL:')[1].split('| TYPE:')[0].strip(' ')
@@ -412,14 +447,19 @@ class GUI():
                                     listWidget = QListWidget()
                                     listWidgetItem = QListWidgetItem("Please enter valid keyword...")
                                     listWidget.addItem(listWidgetItem)
-                                    listWidget.setStyleSheet("border : none;")
                                     scroll_bar = QScrollArea(scrollWidget)
                                     scrollAreaWidgetContents = QWidget()
-                                    scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                     scroll_bar.setWidget(scrollAreaWidgetContents)
-                                    scroll_bar.setMinimumHeight(833)
-                                    scroll_bar.setMinimumWidth(718)
+                                    scroll_bar.setMinimumHeight(830)
+                                    scroll_bar.setMinimumWidth(700)
+                                    scroll_bar.setMaximumHeight(830)
+                                    scroll_bar.setMaximumWidth(700)
+                                    scroll_bar.setStyleSheet("border-width: 0px;")
+                                    scroll_bar.move(5,5)
                                     layout = QHBoxLayout(scrollAreaWidgetContents)
+                                    #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
+                                    scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                    scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                     layout.addWidget(listWidget)
                                     mainWindow.setCentralWidget(scrollWidget)
                                     return results
@@ -431,14 +471,19 @@ class GUI():
                                         listWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Please enter valid keyword...")
                                         listWidget.addItem(listWidgetItem)
-                                        listWidget.setStyleSheet("border : none;")
                                         scroll_bar = QScrollArea(scrollWidget)
                                         scrollAreaWidgetContents = QWidget()
-                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+100, listWidget.sizeHintForRow(0)+100))
                                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                                        scroll_bar.setMinimumHeight(833)
-                                        scroll_bar.setMinimumWidth(718)
+                                        scroll_bar.setMinimumHeight(830)
+                                        scroll_bar.setMinimumWidth(700)
+                                        scroll_bar.setMaximumHeight(830)
+                                        scroll_bar.setMaximumWidth(700)
+                                        scroll_bar.setStyleSheet("border-width: 0px;")
+                                        scroll_bar.move(5,5)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
+                                        #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
+                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                        scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                         layout.addWidget(listWidget)
                                         mainWindow.setCentralWidget(scrollWidget)
                                         
@@ -447,13 +492,15 @@ class GUI():
                                         listWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
                                         listWidget.addItem(listWidgetItem)
-                                        listWidget.setStyleSheet("border : none;")
                                         scroll_bar = QScrollArea(scrollWidget)
                                         scrollAreaWidgetContents = QWidget()
-                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1112, 932))
                                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                                        scroll_bar.setMinimumHeight(833)
-                                        scroll_bar.setMinimumWidth(718)
+                                        scroll_bar.setMinimumHeight(830)
+                                        scroll_bar.setMinimumWidth(700)
+                                        scroll_bar.setMaximumHeight(830)
+                                        scroll_bar.setMaximumWidth(700)
+                                        scroll_bar.setStyleSheet("border-width: 0px;")
+                                        scroll_bar.move(5,5)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
                                         
                                         for i,row in results.iterrows():
@@ -475,7 +522,6 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                 
                                             elif row['type'].to_string(index=False) == 'bookmark':
                                                 url = row['url'].to_string(index=False)
@@ -483,8 +529,6 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+50, listWidget.sizeHintForRow(0)*(i+1)+20))
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                 
                                             elif row['type'].to_string(index=False) == 'pdf':
                                                 url = row['url'].to_string(index=False)
@@ -492,7 +536,6 @@ class GUI():
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                scrollAreaWidgetContents.setGeometry(QRect(0, 0, 1212, 932))
                                                                                      
                                             else:
                                                 print("ERROR: Type {} not found".format(row['type'].to_string(index=False)))
@@ -509,11 +552,12 @@ class GUI():
                                                 else:
                                                     web.open(url.split('| TYPE:')[0].strip(' '))
                                                     
-                                        scrollAreaWidgetContents.setStyleSheet("border : none;")
+                                        #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
+                                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                        scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
-                                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         layout.addWidget(listWidget)
-
                                         mainWindow.setCentralWidget(scrollWidget)
                                     return results
 
@@ -524,15 +568,20 @@ class GUI():
                         completer.setCompletionMode(QCompleter.PopupCompletion)
                         completer.setFilterMode(Qt.MatchContains)
                         delegate = CompleterDelegate(le)
-                        completer.popup().setStyleSheet("color: rgb(41, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(0, 120, 120); background-color: rgb(0, 50, 50);")
+                        completer.popup().setStyleSheet("color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120); background-color: rgb(50, 50, 50);")
                         completer.popup().setItemDelegate(delegate)
                         le.setCompleter(completer)
-                                
+
+                        cb_keys = list(database.databaseDict(argv).keys())
                         cb = QComboBox()
                         cb.setMaximumWidth(200)
                         cb.addItem('Select...')
                         cb.addItem('Calculator')
-                        cb.addItems(list(database.databaseDict(argv).keys()))
+                        cb.addItems(cb_keys)
+                        def showPopup():
+                            cb.showPopup()
+                        cb_shortcut = QShortcut(QKeySequence("Ctrl+d"),cb)
+                        cb_shortcut.activated.connect(showPopup)
                         cb.currentIndexChanged.connect(selectionchange)
                         le.returnPressed.connect(onRet)
                         layout.addRow(le,cb)

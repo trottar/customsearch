@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-16 01:31:14 trottar"
+# Time-stamp: "2021-12-16 11:10:08 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -12,6 +12,7 @@
 #
 import pandas as pd
 import feedparser
+from pylatexenc.latex2text import LatexNodes2Text
 
 import tools
 
@@ -36,7 +37,8 @@ def import_rss():
         #print("------Link--------")
         #print(ex_entry.link)
         #print('-'*70)
-        rssDict.update({"title" : ex_entry.title.lower()})
+        latex = r"{}".format(ex_entry.title.lower())
+        rssDict.update({"title" : LatexNodes2Text().latex_to_text(latex)})
         rssDict.update({"url" : ex_entry.link})
         rssDict.update({"type" : "nucl-ex"})
         rssDict.update({"transcript" : ' '.join([line.strip().lower() for line in ex_entry.summary.splitlines()])})
@@ -57,7 +59,8 @@ def import_rss():
         #print("------Link--------")
         #print(th_entry.link)
         #print('-'*70)
-        rssDict.update({"title" : th_entry.title.lower()})
+        latex = r"{}".format(th_entry.title.lower())
+        rssDict.update({"title" : LatexNodes2Text().latex_to_text(latex)})
         rssDict.update({"url" : th_entry.link})
         rssDict.update({"type" : "nucl-th"})
         rssDict.update({"transcript" : ' '.join([line.strip().lower() for line in th_entry.summary.splitlines()])})
