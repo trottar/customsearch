@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:47:28 trottar"
+# Time-stamp: "2021-12-17 07:53:06 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -234,21 +234,20 @@ class GUI():
                             randnum = randint(0, len(results.index)-1)
                             for i,row in results.iterrows():
                                 if randnum == i:
-                                    url = row['url'].to_string(index=False)
+                                    link = row['url'].to_string(index=False)
                                     url_title = row['title'].to_string(index=False)
-                                    return [url,url_title]
+                                    return [link,url_title]
                         try:
-                            url = article_random()[0]
+                            link = article_random()[0]
                             url_title = article_random()[1]
                         except:
-                            url = "https://www.google.com"
+                            link = "https://www.google.com"
                             url_title = "ERROR: Article not found..."
-                        label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(url,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(url,url_title))
+                        label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(link,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(link,url_title))
                         label.setOpenExternalLinks(True)
                         label.setWordWrap(True)
                         label.setMinimumHeight(25)
                         label.setMaximumHeight(100)
-                        link = url
                         def selectlink():
                             web.open(link.strip(' '))
                         link_shortcut = QShortcut(QKeySequence("Ctrl+o"),label)
