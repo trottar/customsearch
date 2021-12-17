@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:16:29 trottar"
+# Time-stamp: "2021-12-17 07:47:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -255,9 +255,10 @@ class GUI():
                         link_shortcut.activated.connect(selectlink)
                         sub.setCentralWidget(label)
                         dock = QDockWidget("Article of the day...")
-                        dock.setMinimumHeight(100)
-                        dock.setMaximumHeight(100)
-                        dock.setMinimumWidth(300)            
+                        dock.setMinimumHeight(115)
+                        dock.setMaximumHeight(115)
+                        dock.setMinimumWidth(500)
+                        dock.setMaximumWidth(500)
                         dock.setWidget(sub)
                         window.addDockWidget(pos, dock)
                     
@@ -273,17 +274,17 @@ class GUI():
                         scroll_bar = QScrollArea(scrollWidget)
                         scrollAreaWidgetContents = QWidget()
                         scroll_bar.setWidget(scrollAreaWidgetContents)
-                        scroll_bar.setMinimumHeight(460)
+                        scroll_bar.setMinimumHeight(510)
                         scroll_bar.setMinimumWidth(490)
-                        scroll_bar.setMaximumHeight(460)
+                        scroll_bar.setMaximumHeight(510)
                         scroll_bar.setMaximumWidth(490)
                         scroll_bar.setStyleSheet("border-width: 0px;")
                         scroll_bar.move(5,5)
                         layout = QHBoxLayout(scrollAreaWidgetContents)
                         dock = QDockWidget("arXiv RSS...")
-                        dock.setMaximumHeight(500)
+                        dock.setMaximumHeight(550)
                         dock.setMaximumWidth(500)
-                        dock.setMinimumHeight(500)
+                        dock.setMinimumHeight(550)
                         dock.setMinimumWidth(500)
                         try:
                             for i,row in rss.import_rss().iterrows():
@@ -308,7 +309,7 @@ class GUI():
                             listWidget.setFocus(True)
                         select_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
                         select_shortcut.activated.connect(select_arxiv)
-                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 460))
+                        scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 510))
                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
@@ -359,8 +360,10 @@ class GUI():
                             button.setEnabled(True)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True)))
                         dock = QDockWidget("Create database topic")
-                        dock.setMinimumHeight(25)
-                        dock.setMinimumWidth(300)
+                        dock.setMinimumHeight(200)
+                        dock.setMinimumWidth(500)
+                        dock.setMaximumHeight(200)
+                        dock.setMaximumWidth(500)
                         dock.setWidget(sub)
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
@@ -387,9 +390,9 @@ class GUI():
                         button_shortcut = QShortcut(QKeySequence("Ctrl+g"),button)
                         button_shortcut.activated.connect(select_button)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
-                        dock.setMinimumHeight(25)
+                        dock.setMinimumHeight(75)
                         dock.setMinimumWidth(500)
-                        dock.setMaximumHeight(100)
+                        dock.setMaximumHeight(75)
                         dock.setMaximumWidth(500)
                         dock.setFeatures(QDockWidget.DockWidgetMovable)
                         window.addDockWidget(pos, dock)
@@ -621,7 +624,8 @@ class GUI():
                         le.returnPressed.connect(onRet)
                         layout.addRow(le,cb)
                         dock = QDockWidget("Search keyword below")
-                        dock.setMinimumHeight(25)
+                        dock.setMinimumHeight(75)
+                        dock.setMaximumHeight(75)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
@@ -630,10 +634,13 @@ class GUI():
                         
                     elif _DOCK_COUNT == 2:
                         dock = QDockWidget("")
-                        dock.setMinimumWidth(300)
-                        dock.setMinimumHeight(25)
+                        dock.setMinimumWidth(500)
+                        dock.setMinimumHeight(875)
+                        dock.setMaximumWidth(500)
+                        dock.setMaximumHeight(875)
                         dock.setWidget(sub)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+                        dock.setTitleBarWidget(QWidget())
                         window.addDockWidget(pos, dock)
                         if DO_SUB_DOCK_CREATION and subDocks:
                             addDocks(sub, "Sub Dock", subDocks=False)
