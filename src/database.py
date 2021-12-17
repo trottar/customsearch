@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-16 00:21:11 trottar"
+# Time-stamp: "2021-12-17 03:35:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -67,7 +67,7 @@ def create_database(pbar,layout,button,*args):
             elif key == 'youtube':
                 #print("youtube: ", importDict[dir][key])
                 yt_folder = importDict[dir][key]
-                button.setText("Updating youtube data...")
+                button.setText("Updating {} youtube data...".format(dir))
                 y_df = youtube.import_playlist(yt_folder,pbar)
             elif key == 'pdf':
                 #print("pdf: ", importDict[dir][key])

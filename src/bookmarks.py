@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-03 18:44:32 trottar"
+# Time-stamp: "2021-12-17 04:00:06 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -55,7 +55,7 @@ def import_bookmarks(inp_folder,pbar,button):
                         continue
                     try:
                         soup = BeautifulSoup(html, "html.parser")
-                    except NotImplementedError:
+                    except:
                         continue
                     if val == 'Must Read':
                         text = 'MR: '

@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-04 01:19:52 trottar"
+# Time-stamp: "2021-12-17 03:47:26 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -72,7 +72,7 @@ def import_playlist(playlist,pbar):
                     with urllib.request.urlopen(v_url) as response:
                         response_text = response.read()
                         data = json.loads(response_text.decode())
-                except urllib.error.HTTPError as e:
+                except (urllib.error.HTTPError, urllib.error.URLError,ConnectionError) as e:
                     if e.code in (..., 403, ...):
                         continue
                 title = data['title']

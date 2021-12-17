@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 03:30:32 trottar"
+# Time-stamp: "2021-12-17 07:07:27 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -61,8 +61,8 @@ _DOCK_RANGE = 1
 class ProgressBar(QProgressBar):
 
     def __init__(self, layout, button,  arg, *args, **kwargs):
-        #super(ProgressBar, self).__init__(*args, **kwargs)
         QProgressBar.__init__(self, *args, **kwargs)
+        self.setAlignment(Qt.AlignCenter)
         self.setValue(0)
         if self.minimum() != self.maximum():
             database.create_database(self, layout, button, arg)
@@ -87,10 +87,31 @@ class GUI():
         
     def mainwindow():
 
-
         mainWindow = QMainWindow()
         mainWindow.resize(1224,968)
         mainWindow.setDockOptions(_DOCK_OPTS)
+        mainWindow.setWindowTitle("Custom Search");
+        mainWindow.setWindowFlags(Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+
+        '''
+        menuBar = mainWindow.menuBar()
+        helpMenu = menuBar.addMenu("&Help")
+        shortcutMenu = helpMenu.addMenu("Shortcuts")
+        shortcutMenu.addAction("Quit: \tCtrl+q")
+        shortcutMenu.addAction("Article of Day: \tCtrl+o")
+        shortcutMenu.addAction("arXiv: \tCtrl+r")
+        shortcutMenu.addAction("New Entry: \tCtrl+n")
+        shortcutMenu.addAction("Update database: \tCtrl+g")
+        shortcutMenu.addAction("Dropdown menu: \tCtrl+d")
+        '''
+        
+        mainWindow.setContextMenuPolicy(Qt.ActionsContextMenu)
+        mainWindow.addAction(QAction("Quit: \tCtrl+q",mainWindow))
+        mainWindow.addAction(QAction("Article of Day: \tCtrl+o",mainWindow))
+        mainWindow.addAction(QAction("arXiv: \tCtrl+r",mainWindow))
+        mainWindow.addAction(QAction("New Entry: \tCtrl+n",mainWindow))
+        mainWindow.addAction(QAction("Update database: \tCtrl+g",mainWindow))
+        mainWindow.addAction(QAction("Dropdown menu: \tCtrl+d",mainWindow))        
         
         quit_shortcut = QShortcut(QKeySequence("Ctrl+q"),mainWindow)
         quit_shortcut.activated.connect(QApplication.instance().quit)
@@ -99,19 +120,23 @@ class GUI():
         widget.setMinimumSize(200,200)
         widget.setFrameStyle(widget.Box)
         mainWindow.setCentralWidget(widget)
+        style = QApplication.style().standardIcon(QStyle.SP_DialogApplyButton)
         mainWindow.setStyleSheet('''
-        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit, QMainWindow{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
-        QDockWidget:close-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
-        QDockWidget:close-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
-        QDockWidget:float-button{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
-        QDockWidget:float-button:hover{border-width: 1px; border:1px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
-        QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
-        QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
+        QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
+        QDockWidget:close-button{background-color: rgb(50, 120, 120); subcontrol-position: right; right:10px;}
+        QDockWidget:close-button:hover{background-color: rgb(150, 150, 150);}
+        QDockWidget:float-button{background-color: rgb(50, 120, 120);subcontrol-position: right; right:30px;}
+        QDockWidget:float-button:hover{background-color: rgb(150, 150, 150);}
+        QMenuBar:item:selected, QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QMenuBar:item:pressed, QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
         QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 120, 120);}
         QComboBox:drop-down{border-width: 0px;}
-        QComboBox, QLineEdit, QListWidget, QDockWidget, QPushButton, QLabel, QToolTip{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QComboBox, QLineEdit, QListWidget, QPushButton, QLabel, QToolTip{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QMenu:item, QMenuBar:item{color: rgb(100, 150, 150); selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QDockWidget{titlebar-close-icon: url(icons/close.png); titlebar-normal-icon: url(icons/normal.png); color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QProgressBar{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
         ''')
-            
+        
         def update_log(argv):
             argv = {i : argv[i] for i in sorted(argv.keys())}
             for i in sorted(argv.keys()):
@@ -352,10 +377,9 @@ class GUI():
                             button.setEnabled(True)
                         def select_button():
                             button.setFocus(True)
-                        button_shortcut = QShortcut(QKeySequence("Ctrl+1"),button)
+                        button_shortcut = QShortcut(QKeySequence("Ctrl+g"),button)
                         button_shortcut.activated.connect(select_button)
                         button.clicked.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
-                        button.activated.connect(lambda: button_pressed(button.setEnabled(True),date = datetime.datetime.now()))
                         dock.setMinimumHeight(25)
                         dock.setMinimumWidth(500)
                         dock.setMaximumHeight(100)
@@ -619,11 +643,14 @@ class GUI():
 def main(): 
    app = QApplication(sys.argv)
    app.setStyle('WindowsVista')
+   
+   '''
    qp = QPalette()
    qp.setColor(QPalette.ButtonText, Qt.black)
    qp.setColor(QPalette.Window, Qt.gray)
    qp.setColor(QPalette.Button, Qt.gray)
    app.setPalette(qp)
+   '''
 
    mainwindow = GUI.mainwindow()
    mainwindow.show()
