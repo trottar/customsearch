@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:07:27 trottar"
+# Time-stamp: "2021-12-17 07:10:41 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -106,6 +106,10 @@ class GUI():
         '''
         
         mainWindow.setContextMenuPolicy(Qt.ActionsContextMenu)
+        mainWindow.addAction(QAction("&Help",mainWindow))
+        separator = QAction(mainWindow)
+        separator.setSeparator(True)
+        mainWindow.addAction(separator)
         mainWindow.addAction(QAction("Quit: \tCtrl+q",mainWindow))
         mainWindow.addAction(QAction("Article of Day: \tCtrl+o",mainWindow))
         mainWindow.addAction(QAction("arXiv: \tCtrl+r",mainWindow))
