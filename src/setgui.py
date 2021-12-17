@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:14:38 trottar"
+# Time-stamp: "2021-12-17 07:16:29 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -313,6 +313,7 @@ class GUI():
                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
                         listWidget.itemActivated.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                        listWidget.setWordWrap(True)
                         layout.addWidget(listWidget)
                         sub.setCentralWidget(scrollWidget)
                         dock.setWidget(sub)
