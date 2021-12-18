@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-18 14:15:14 trottar"
+# Time-stamp: "2021-12-18 14:42:42 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -424,8 +424,9 @@ class GUI(object):
                             print("Current selection: ",cb.currentText())
                             return cb.currentText()
                         
-                        def onRet(listWidget):                            
+                        def onRet(listWidget):
                             u_inp = le.text().lower()
+                            listWidget = QListWidget()
                             if selectionchange() == 'Select...':
                                 results = searchfiles.searchfiles(u_inp)
                                 scrollWidget = QListWidget()
@@ -590,11 +591,12 @@ class GUI(object):
                                                     subprocess.run(cmd)
                                                 else:
                                                     web.open(url.split('| TYPE:')[0].strip(' '))
-                                                    
+
                                         scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        listWidget.itemActivated.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         def select_list():
                                             listWidget.setFocus(True)
                                         list_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
@@ -639,8 +641,8 @@ class GUI(object):
                         
                     elif _DOCK_COUNT == 2:
                         dock = QDockWidget("")
-                        dock.setMinimumWidth(500)
-                        dock.setMinimumHeight(875)
+                        #dock.setMinimumWidth(500)
+                        #dock.setMinimumHeight(875)
                         dock.setMaximumWidth(500)
                         dock.setMaximumHeight(875)
                         dock.setWidget(sub)
