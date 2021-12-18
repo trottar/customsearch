@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 07:53:06 trottar"
+# Time-stamp: "2021-12-18 14:15:14 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -83,41 +83,50 @@ class CompleterDelegate(QStyledItemDelegate):
         option.palette.setColor(QPalette.Active, QPalette.HighlightedText, QColor(0, 0, 0))
         option.displayAlignment = Qt.AlignCenter
         
-class GUI():
-        
-    def mainwindow():
+class GUI(object):
+            
+    def retranslateUi(self, mainWindow):
+        _translate = QCoreApplication.translate
+        mainWindow.setWindowTitle(_translate("mainWindow", "mainWindow"))
+    
+    def mainwindow(self, mainWindow):
 
-        mainWindow = QMainWindow()
+        mainWindow.setObjectName("mainWindow")
+        #mainWindow = QMainWindow()
         mainWindow.resize(1224,968)
         mainWindow.setDockOptions(_DOCK_OPTS)
         mainWindow.setWindowTitle("Custom Search");
-        mainWindow.setWindowFlags(Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
+        mainWindow.setWindowFlags(Qt.FramelessWindowHint)
 
-        '''
+        mainWindow.mouseMoveEvent = self.mouseMoveEvent
+        self.retranslateUi(mainWindow)
+        QMetaObject.connectSlotsByName(mainWindow)        
+
         menuBar = mainWindow.menuBar()
         helpMenu = menuBar.addMenu("&Help")
         shortcutMenu = helpMenu.addMenu("Shortcuts")
-        shortcutMenu.addAction("Quit: \tCtrl+q")
-        shortcutMenu.addAction("Search Bar: \tCtrl+s")
-        shortcutMenu.addAction("Article of Day: \tCtrl+o")
-        shortcutMenu.addAction("arXiv: \tCtrl+r")
-        shortcutMenu.addAction("New Entry: \tCtrl+n")
-        shortcutMenu.addAction("Update Database: \tCtrl+g")
-        shortcutMenu.addAction("Dropdown Menu: \tCtrl+d")
-        '''
-        
+        shortcutMenu.addAction("Quit:\tCtrl+q".expandtabs(35))
+        shortcutMenu.addAction("Search Bar:\tCtrl+s".expandtabs(29))
+        shortcutMenu.addAction("Search Results:\tCtrl+r".expandtabs(25))
+        shortcutMenu.addAction("Article of Day:\tCtrl+o".expandtabs(26))
+        shortcutMenu.addAction("arXiv:\tCtrl+l".expandtabs(35))
+        shortcutMenu.addAction("New Entry:\tCtrl+n".expandtabs(28))
+        shortcutMenu.addAction("Update Database:\tCtrl+g".expandtabs(20))
+        shortcutMenu.addAction("Dropdown Menu:\tCtrl+d".expandtabs(20))
+
         mainWindow.setContextMenuPolicy(Qt.ActionsContextMenu)
         mainWindow.addAction(QAction("&Help",mainWindow))
         separator = QAction(mainWindow)
         separator.setSeparator(True)
         mainWindow.addAction(separator)
-        mainWindow.addAction(QAction("Quit: \tCtrl+q",mainWindow))
-        mainWindow.addAction(QAction("Search Bar: \tCtrl+s",mainWindow))
-        mainWindow.addAction(QAction("Article of Day: \tCtrl+o",mainWindow))
-        mainWindow.addAction(QAction("arXiv: \tCtrl+r",mainWindow))
-        mainWindow.addAction(QAction("New Entry: \tCtrl+n",mainWindow))
-        mainWindow.addAction(QAction("Update Database: \tCtrl+g",mainWindow))
-        mainWindow.addAction(QAction("Dropdown Menu: \tCtrl+d",mainWindow))        
+        mainWindow.addAction(QAction("Quit:\tCtrl+q".expandtabs(35),mainWindow))
+        mainWindow.addAction(QAction("Search Bar:\tCtrl+s".expandtabs(29),mainWindow))
+        mainWindow.addAction(QAction("Search Results:\tCtrl+r".expandtabs(25),mainWindow))
+        mainWindow.addAction(QAction("Article of Day:\tCtrl+o".expandtabs(26),mainWindow))
+        mainWindow.addAction(QAction("arXiv:\tCtrl+l".expandtabs(35),mainWindow))
+        mainWindow.addAction(QAction("New Entry:\tCtrl+n".expandtabs(28),mainWindow))
+        mainWindow.addAction(QAction("Update Database:\tCtrl+g".expandtabs(20),mainWindow))
+        mainWindow.addAction(QAction("Dropdown Menu:\tCtrl+d".expandtabs(20),mainWindow))
         
         quit_shortcut = QShortcut(QKeySequence("Ctrl+q"),mainWindow)
         quit_shortcut.activated.connect(QApplication.instance().quit)
@@ -128,19 +137,20 @@ class GUI():
         mainWindow.setCentralWidget(widget)
         style = QApplication.style().standardIcon(QStyle.SP_DialogApplyButton)
         mainWindow.setStyleSheet('''
+        QMainWindow {background: transparent;}
         QWidget, QListWidgetItem, QHBoxLayout, QScrollArea, QListWidget, QLineEdit{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 50, 50);}
         QDockWidget:close-button{background-color: rgb(50, 120, 120); subcontrol-position: right; right:10px;}
         QDockWidget:close-button:hover{background-color: rgb(150, 150, 150);}
         QDockWidget:float-button{background-color: rgb(50, 120, 120);subcontrol-position: right; right:30px;}
         QDockWidget:float-button:hover{background-color: rgb(150, 150, 150);}
-        QMenuBar:item:selected, QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
-        QMenuBar:item:pressed, QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
+        QMenu:item:selected, QMenuBar:item:selected, QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QMenu:item:pressed, QMenuBar:item:pressed, QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
         QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 120, 120);}
         QComboBox:drop-down{border-width: 0px;}
         QComboBox, QLineEdit, QListWidget, QPushButton, QLabel, QToolTip{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
-        QMenu:item, QMenuBar:item{color: rgb(100, 150, 150); selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QMenuBar, QMenu:item, QMenuBar:item{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
         QDockWidget{titlebar-close-icon: url(icons/close.png); titlebar-normal-icon: url(icons/normal.png); color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
-        QProgressBar{color: rgb(100, 150, 150); font-weight: bold;font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
+        QProgressBar{color: rgb(100, 150, 150); font-weight: bold; font-size: 14pt; selection-background-color: rgb(150, 150, 150); selection-color: rgb(0, 0, 0);}
         ''')
         
         def update_log(argv):
@@ -306,7 +316,7 @@ class GUI():
                                 web.open(url.split('| TYPE:')[0].strip(' '))
                         def select_arxiv():
                             listWidget.setFocus(True)
-                        select_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
+                        select_shortcut = QShortcut(QKeySequence("Ctrl+l"),listWidget)
                         select_shortcut.activated.connect(select_arxiv)
                         scrollAreaWidgetContents.setGeometry(QRect(0, 0, 485, 510))
                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
@@ -400,6 +410,7 @@ class GUI():
                         dockedWidget.setLayout(layout)
                         
                     if _DOCK_COUNT == 1:
+                        listWidget = QListWidget()
                         layout = QFormLayout()
                         le = QLineEdit()
                         le.setMinimumWidth(500)
@@ -413,12 +424,11 @@ class GUI():
                             print("Current selection: ",cb.currentText())
                             return cb.currentText()
                         
-                        def onRet():
+                        def onRet(listWidget):                            
                             u_inp = le.text().lower()
                             if selectionchange() == 'Select...':
                                 results = searchfiles.searchfiles(u_inp)
                                 scrollWidget = QListWidget()
-                                listWidget = QListWidget()
                                 listWidgetItem = QListWidgetItem("Select from dropdown menu...")
                                 listWidget.addItem(listWidgetItem)
                                 scroll_bar = QScrollArea(scrollWidget)
@@ -431,7 +441,6 @@ class GUI():
                                 scroll_bar.setStyleSheet("border-width: 0px;")
                                 scroll_bar.move(5,5)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
-                                #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
                                 scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                 scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                 layout.addWidget(listWidget)
@@ -447,7 +456,6 @@ class GUI():
                                 cmd = ['./Genius/run_genius.sh','{}'.format(u_inp)]
                                 results = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
                                 scrollWidget = QListWidget()
-                                listWidget = QListWidget()
                                 listWidgetItem = QListWidgetItem(results)
                                 listWidget.addItem(listWidgetItem)
                                 scroll_bar = QScrollArea(scrollWidget)                                
@@ -460,7 +468,6 @@ class GUI():
                                 scroll_bar.setStyleSheet("border-width: 0px;")
                                 scroll_bar.move(5,5)
                                 layout = QHBoxLayout(scrollAreaWidgetContents)
-                                #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
                                 scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                 scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                 listWidget.itemClicked.connect(lambda: CopyLink(listWidget,results))
@@ -481,7 +488,6 @@ class GUI():
                                 if u_inp == '':
                                     results = searchfiles.searchfiles(u_inp)
                                     scrollWidget = QListWidget()
-                                    listWidget = QListWidget()
                                     listWidgetItem = QListWidgetItem("Please enter valid keyword...")
                                     listWidget.addItem(listWidgetItem)
                                     scroll_bar = QScrollArea(scrollWidget)
@@ -494,7 +500,6 @@ class GUI():
                                     scroll_bar.setStyleSheet("border-width: 0px;")
                                     scroll_bar.move(5,5)
                                     layout = QHBoxLayout(scrollAreaWidgetContents)
-                                    #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
                                     scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                     scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                     layout.addWidget(listWidget)
@@ -505,7 +510,6 @@ class GUI():
                                     results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])                                    
                                     if results.empty:
                                         scrollWidget = QListWidget()
-                                        listWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Please enter valid keyword...")
                                         listWidget.addItem(listWidgetItem)
                                         scroll_bar = QScrollArea(scrollWidget)
@@ -518,7 +522,6 @@ class GUI():
                                         scroll_bar.setStyleSheet("border-width: 0px;")
                                         scroll_bar.move(5,5)
                                         layout = QHBoxLayout(scrollAreaWidgetContents)
-                                        #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
                                         scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                         layout.addWidget(listWidget)
@@ -526,7 +529,6 @@ class GUI():
                                         
                                     else:
                                         scrollWidget = QListWidget()
-                                        listWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Results of keyword {}...\n".format(u_inp))
                                         listWidget.addItem(listWidgetItem)
                                         scroll_bar = QScrollArea(scrollWidget)
@@ -589,11 +591,14 @@ class GUI():
                                                 else:
                                                     web.open(url.split('| TYPE:')[0].strip(' '))
                                                     
-                                        #scrollAreaWidgetContents.setGeometry(QRect(0, 0, listWidget.sizeHintForColumn(0)+150, listWidget.sizeHintForRow(0)+150))
                                         scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
                                         scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        def select_list():
+                                            listWidget.setFocus(True)
+                                        list_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
+                                        list_shortcut.activated.connect(select_list)
                                         layout.addWidget(listWidget)
                                         mainWindow.setCentralWidget(scrollWidget)
                                     return results
@@ -620,12 +625,13 @@ class GUI():
                         cb_shortcut = QShortcut(QKeySequence("Ctrl+d"),cb)
                         cb_shortcut.activated.connect(showPopup)
                         cb.currentIndexChanged.connect(selectionchange)
-                        le.returnPressed.connect(onRet)
+                        le.returnPressed.connect(lambda: onRet(listWidget))
                         layout.addRow(le,cb)
-                        dock = QDockWidget("Search keyword below")
-                        dock.setMinimumHeight(75)
-                        dock.setMaximumHeight(75)
+                        dock = QDockWidget("")
+                        dock.setMinimumHeight(50)
+                        dock.setMaximumHeight(50)
                         dock.setFeatures(QDockWidget.NoDockWidgetFeatures)
+                        dock.setTitleBarWidget(QWidget())
                         window.addDockWidget(pos, dock)
                         dockedWidget = QWidget(window)
                         dock.setWidget(dockedWidget)
@@ -652,11 +658,23 @@ class GUI():
 
         addDocks(mainWindow, "Custom Search")
 
-        mainWindow.show()
         mainWindow.raise_()
-                    
-        return mainWindow
+
+class MyWin(QMainWindow, GUI):
+    def __init__(self):
+        super().__init__()
+        self.mainwindow(self)
+        self.dragPos = QPoint()
         
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPos()
+        
+    def mouseMoveEvent(self, event):
+        if event.buttons() == Qt.LeftButton:
+            self.move(self.pos() + event.globalPos() - self.dragPos)
+            self.dragPos = event.globalPos()
+            event.accept()         
+    
 def main(): 
    app = QApplication(sys.argv)
    app.setStyle('WindowsVista')
@@ -669,7 +687,8 @@ def main():
    app.setPalette(qp)
    '''
 
-   mainwindow = GUI.mainwindow()
+   #mainwindow = GUI.mainwindow()
+   mainwindow = MyWin()
    mainwindow.show()
    sys.exit(app.exec_())
 
