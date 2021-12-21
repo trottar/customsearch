@@ -3,15 +3,13 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-18 14:42:42 trottar"
+# Time-stamp: "2021-12-21 03:13:26 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
 #
 # Copyright (c) trottar
 #
-import PyQt5
-print(PyQt5.__file__)
 import pandas as pd
 import webbrowser as web
 from PyQt5.QtCore import *
@@ -113,6 +111,7 @@ class GUI(object):
         shortcutMenu.addAction("New Entry:\tCtrl+n".expandtabs(28))
         shortcutMenu.addAction("Update Database:\tCtrl+g".expandtabs(20))
         shortcutMenu.addAction("Dropdown Menu:\tCtrl+d".expandtabs(20))
+        shortcutMenu.addAction("Enter 'all' in search to see all data for a dropdown topic")
 
         mainWindow.setContextMenuPolicy(Qt.ActionsContextMenu)
         mainWindow.addAction(QAction("&Help",mainWindow))
@@ -127,6 +126,7 @@ class GUI(object):
         mainWindow.addAction(QAction("New Entry:\tCtrl+n".expandtabs(28),mainWindow))
         mainWindow.addAction(QAction("Update Database:\tCtrl+g".expandtabs(20),mainWindow))
         mainWindow.addAction(QAction("Dropdown Menu:\tCtrl+d".expandtabs(20),mainWindow))
+        mainWindow.addAction(QAction("Enter 'all' in search to see all data for a dropdown topic",mainWindow))
         
         quit_shortcut = QShortcut(QKeySequence("Ctrl+q"),mainWindow)
         quit_shortcut.activated.connect(QApplication.instance().quit)
@@ -507,8 +507,84 @@ class GUI(object):
                                     mainWindow.setCentralWidget(scrollWidget)
                                     return results
                                 
+                                if u_inp == 'all':
+                                    results = searchfiles.allfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
+                                    scrollWidget = QListWidget()
+                                    listWidgetItem = QListWidgetItem("All data for {}...".format(database.databaseDict(argv)[selectionchange()]['database'].replace('/','')))
+                                    listWidget.addItem(listWidgetItem)
+                                    scroll_bar = QScrollArea(scrollWidget)
+                                    scrollAreaWidgetContents = QWidget()
+                                    scroll_bar.setWidget(scrollAreaWidgetContents)
+                                    scroll_bar.setMinimumHeight(830)
+                                    scroll_bar.setMinimumWidth(700)
+                                    scroll_bar.setMaximumHeight(830)
+                                    scroll_bar.setMaximumWidth(700)
+                                    scroll_bar.setStyleSheet("border-width: 0px;")
+                                    scroll_bar.move(5,5)
+                                    layout = QHBoxLayout(scrollAreaWidgetContents)
+                                    for i,row in results.iterrows():
+                                        text = row['url'].to_string(index=False)
+                                        if row['type'].to_string(index=False) == 'youtube':
+                                            try:
+                                                with urllib.request.urlopen(text) as response:
+                                                    response_text = response.read()
+                                                    data = json.loads(response_text.decode())
+                                            except urllib.error.HTTPError as e:
+                                                if e.code in (..., 403, ...):
+                                                    continue
+                                            soup = BeautifulSoup(data['html'],"html.parser")
+                                            url = soup.find("iframe")["src"]
+                                            url_title = row['title'].to_string(index=False)
+                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                            listWidget.addItem(listWidgetItem)
+
+                                        elif row['type'].to_string(index=False) == 'bookmark':
+                                            url = row['url'].to_string(index=False)
+                                            url_title = row['title'].to_string(index=False)
+                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                            listWidget.addItem(listWidgetItem)
+
+                                        elif row['type'].to_string(index=False) == 'pdf':
+                                            url = row['url'].to_string(index=False)
+                                            url_title = row['title'].to_string(index=False)
+                                            listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
+                                            listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
+                                            listWidget.addItem(listWidgetItem)
+
+                                        else:
+                                            print("ERROR: Type {} not found".format(row['type'].to_string(index=False)))
+
+                                    def OpenLink(listwidget,url):
+                                        if listwidget.text() == "Results of keyword {}...\n".format(u_inp):
+                                            print("")
+                                        else:
+                                            url = url.split('URL:')[1]
+                                            print(url)
+                                            if url.split('TYPE:')[1] == 'pdf':
+                                                cmd = ['evince','{}'.format(url.split('| TYPE:')[0].strip(' '))]
+                                                subprocess.run(cmd)
+                                            else:
+                                                web.open(url.split('| TYPE:')[0].strip(' '))
+
+                                    scrollAreaWidgetContents.setGeometry(QRect(0, 0, 700, 830))
+                                    scrollAreaWidgetContents.setStyleSheet("border-width: 0px")
+                                    listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                    listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                    listWidget.itemActivated.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                    listWidget.setWordWrap(True)
+                                    def select_list():
+                                        listWidget.setFocus(True)
+                                    list_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
+                                    list_shortcut.activated.connect(select_list)
+                                    layout.addWidget(listWidget)
+                                    mainWindow.setCentralWidget(scrollWidget)
+                                    return results
+                                
+                                
                                 else:
-                                    results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])                                    
+                                    results = searchfiles.searchfiles(u_inp,database.databaseDict(argv)[selectionchange()]['database'])
                                     if results.empty:
                                         scrollWidget = QListWidget()
                                         listWidgetItem = QListWidgetItem("Please enter valid keyword...")
@@ -597,6 +673,7 @@ class GUI(object):
                                         listWidget.itemDoubleClicked.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemClicked.connect(lambda: CopyLink(listWidget,listWidget.currentItem(),listWidget.currentItem().toolTip()))
                                         listWidget.itemActivated.connect(lambda: OpenLink(listWidget.currentItem(),listWidget.currentItem().toolTip()))
+                                        listWidget.setWordWrap(True)
                                         def select_list():
                                             listWidget.setFocus(True)
                                         list_shortcut = QShortcut(QKeySequence("Ctrl+r"),listWidget)
@@ -641,8 +718,8 @@ class GUI(object):
                         
                     elif _DOCK_COUNT == 2:
                         dock = QDockWidget("")
-                        #dock.setMinimumWidth(500)
-                        #dock.setMinimumHeight(875)
+                        dock.setMinimumWidth(500)
+                        dock.setMinimumHeight(875)
                         dock.setMaximumWidth(500)
                         dock.setMaximumHeight(875)
                         dock.setWidget(sub)

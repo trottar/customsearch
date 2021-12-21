@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-11-24 13:24:54 trottar"
+# Time-stamp: "2021-12-21 03:09:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -59,4 +59,26 @@ def searchfiles(keyword,database=''):
         except:
             print('\n\nERROR: Check searchfiles in Lucene++...\n\n')
             sys.exit(0)
+    return df
+
+def allfiles(keyword,database=''):
+
+    cmd = ['find','../database/{}'.format(database)]
+    ls = subprocess.Popen(cmd,stdout=subprocess.PIPE)
+    result = subprocess.Popen(["grep", "-v", "/$"],stdin=ls.stdout,stdout=subprocess.PIPE)
+    goodFiles  = result.stdout
+    #print(goodFiles, "\n\n")
+    df = pd.DataFrame()
+    for goodFile in goodFiles:
+        if 'csv' in str(goodFile):
+            f_name = str(goodFile).strip("'").strip('\\n').strip("b'")
+            #print(f_name)
+            try:
+                inp_f = pd.read_csv(f_name)
+            except:
+                print("{} not found".format(f_name))
+                continue
+            inp_f = dict(inp_f)
+            df = df.append(inp_f,ignore_index=True)
+    print("-"*70)           
     return df
