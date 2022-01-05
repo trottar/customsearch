@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-21 03:13:26 trottar"
+# Time-stamp: "2022-01-05 13:09:42 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -58,12 +58,12 @@ _DOCK_RANGE = 1
 
 class ProgressBar(QProgressBar):
 
-    def __init__(self, layout, button,  arg, *args, **kwargs):
+    def __init__(self, layout,  arg, *args, **kwargs):
         QProgressBar.__init__(self, *args, **kwargs)
         self.setAlignment(Qt.AlignCenter)
         self.setValue(0)
         if self.minimum() != self.maximum():
-            database.create_database(self, layout, button, arg)
+            database.create_database(self, layout, arg)
             
             
     def onTimeout(self):
@@ -90,7 +90,6 @@ class GUI(object):
     def mainwindow(self, mainWindow):
 
         mainWindow.setObjectName("mainWindow")
-        #mainWindow = QMainWindow()
         mainWindow.resize(1224,968)
         mainWindow.setDockOptions(_DOCK_OPTS)
         mainWindow.setWindowTitle("Custom Search");
@@ -98,7 +97,7 @@ class GUI(object):
 
         mainWindow.mouseMoveEvent = self.mouseMoveEvent
         self.retranslateUi(mainWindow)
-        QMetaObject.connectSlotsByName(mainWindow)        
+        QMetaObject.connectSlotsByName(mainWindow)
 
         menuBar = mainWindow.menuBar()
         helpMenu = menuBar.addMenu("&Help")
@@ -143,7 +142,7 @@ class GUI(object):
         QDockWidget:close-button:hover{background-color: rgb(150, 150, 150);}
         QDockWidget:float-button{background-color: rgb(50, 120, 120);subcontrol-position: right; right:30px;}
         QDockWidget:float-button:hover{background-color: rgb(150, 150, 150);}
-        QMenu:item:selected, QMenuBar:item:selected, QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
+        QLabel:hover, QMenu:item:selected, QMenuBar:item:selected, QListWidget:item:hover, QPushButton:hover, QLineEdit:hover, QComboBox:hover, QComboBox:item:selected{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(50, 0, 0);  background-color: rgb(150, 150, 150);}
         QMenu:item:pressed, QMenuBar:item:pressed, QPushButton:focus, QListWidget:item:focus, QLineEdit:focus{border:4px outset;  border-radius: 8px; border-color: rgb(100, 150, 150);  color: rgb(100, 150, 150);  background-color: rgb(50, 25, 25);}
         QScrollBar{border:4px outset;  border-radius: 8px; border-color: rgb(50, 120, 120);  color: rgb(50, 0, 0);  background-color: rgb(50, 120, 120);}
         QComboBox:drop-down{border-width: 0px;}
@@ -194,7 +193,6 @@ class GUI(object):
 
             return up_d
         
-        #argv={'Test' : {'bookmarks' : [None],'youtube' : ['https://www.youtube.com/playlist?list=PLW5jnpyxgQHWuCRcMlfb6LuvF_vfEgkKU'],'pdf' : ['analysis_notes_Yero.pdf'],'database' : 'test/'}}
         argv = update_argv()
 
         def add_topic(name,bookmarks,youtube,pdf):
@@ -236,7 +234,7 @@ class GUI(object):
                     sub = QMainWindow()
                     sub.setWindowFlags(Qt.Widget)
                     sub.setDockOptions(_DOCK_OPTS)
-
+                    
                     if _DOCK_COUNT == 3:
                         def article_random():
                             
@@ -253,7 +251,7 @@ class GUI(object):
                         except:
                             link = "https://www.google.com"
                             url_title = "ERROR: Article not found..."
-                        label = QLabel("<a style='text-decoration:none;'href='{0}'>{1}</a>".format(link,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'>{0}</a>".format(link,url_title))
+                        label = QLabel("<a style='text-decoration:none;'href='{0}'; style='color:#33CAFF'>{1}</a>".format(link,url_title),toolTip = "<b>Title</b>: {1} | <b>URL</b>: <a style='text-decoration:none;'href='{0}'; style='color:rgb(100, 150, 150)'>{0}</a>".format(link,url_title))
                         label.setOpenExternalLinks(True)
                         label.setWordWrap(True)
                         label.setMinimumHeight(25)
@@ -389,11 +387,11 @@ class GUI(object):
                             if pbar.value() == 99:
                                 pbar.setValue(0)
                         def button_pressed(clicked,date):
-                            button.setEnabled(False)
-                            pbar = ProgressBar(layout=layout, button=button, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
+                            button.hide()
+                            pbar = ProgressBar(layout=layout, arg=argv, minimum=0, maximum=100, textVisible=True,objectName="BlueProgressBar")
                             pbar.deleteLater()
+                            button.show()
                             button.setText('Last updated {}'.format(date.strftime("%m/%d/%Y, %H:%M:%S")))
-                            button.setEnabled(True)
                         def select_button():
                             button.setFocus(True)
                         button_shortcut = QShortcut(QKeySequence("Ctrl+g"),button)
@@ -457,6 +455,8 @@ class GUI(object):
                                 cmd = ['./Genius/run_genius.sh','{}'.format(u_inp)]
                                 results = subprocess.run(cmd, stdout=subprocess.PIPE).stdout.decode('utf-8')
                                 scrollWidget = QListWidget()
+                                listWidgetItem = QListWidgetItem("{} is equal to...\n".format(u_inp))
+                                listWidget.addItem(listWidgetItem)
                                 listWidgetItem = QListWidgetItem(results)
                                 listWidget.addItem(listWidgetItem)
                                 scroll_bar = QScrollArea(scrollWidget)                                
@@ -635,6 +635,7 @@ class GUI(object):
                                                 soup = BeautifulSoup(data['html'],"html.parser")
                                                 url = soup.find("iframe")["src"]
                                                 url_title = row['title'].to_string(index=False)
+                                                transcript = row['transcript'].to_string(index=False)
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
@@ -642,6 +643,7 @@ class GUI(object):
                                             elif row['type'].to_string(index=False) == 'bookmark':
                                                 url = row['url'].to_string(index=False)
                                                 url_title = row['title'].to_string(index=False)
+                                                transcript = row['transcript'].to_string(index=False)
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
@@ -649,10 +651,11 @@ class GUI(object):
                                             elif row['type'].to_string(index=False) == 'pdf':
                                                 url = row['url'].to_string(index=False)
                                                 url_title = row['title'].to_string(index=False)
+                                                transcript = row['transcript'].to_string(index=False)
                                                 listWidgetItem = QListWidgetItem("\t{0}. {1}".format((i+1),url_title))
                                                 listWidgetItem.setToolTip("Title:{1} | URL:{0} | TYPE:{2}".format(url,url_title,row['type'].to_string(index=False)))
                                                 listWidget.addItem(listWidgetItem)
-                                                                                     
+                              
                                             else:
                                                 print("ERROR: Type {} not found".format(row['type'].to_string(index=False)))
 

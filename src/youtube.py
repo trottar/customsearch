@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 03:47:26 trottar"
+# Time-stamp: "2022-01-05 13:14:45 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -85,6 +85,7 @@ def import_playlist(playlist,pbar):
                         continue
                 pbar.setMaximum(len(pl_urls)-1)
                 pbar.setValue(i)
+                pbar.setFormat("Updating youtube data... {0:.0f}%".format((i/len(pl_urls))*100))
                 QApplication.processEvents()
                 if len(pl_urls) > 1:
                     tools.progressBar(i, len(pl_urls)-1)

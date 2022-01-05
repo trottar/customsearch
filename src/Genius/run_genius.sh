@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-02 00:45:26 trottar"
+# Time-stamp: "2021-12-21 05:42:10 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -18,7 +18,4 @@ ${INPUT}
 EndofGenius
 )
 
-echo
-echo "${INPUT} is equal to..."
-echo 
 echo "${CALC}"

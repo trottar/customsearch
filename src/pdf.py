@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-03 14:45:30 trottar"
+# Time-stamp: "2022-01-05 13:14:35 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -24,7 +24,7 @@ import tools
 
 pd.set_option('display.max_colwidth', None)
 
-def import_pdf(pdfs,pbar,button):
+def import_pdf(pdfs,pbar):
 
     PATH = "../database/pdfs/"
     
@@ -57,6 +57,7 @@ def import_pdf(pdfs,pbar,button):
                     if '.ppm' in file and 'image' not in file:
                         pbar.setMaximum(len(sorted(os.listdir(PATH)))-1)
                         pbar.setValue(j)
+                        pbar.setFormat("Updating {0} pdf data... {1:.0f}%".format(pdf,(i/len(sorted(os.listdir(PATH))))*100))
                         QApplication.processEvents()
                         if len(sorted(os.listdir(PATH))) > 1:
                             tools.progressBar(j, len(sorted(os.listdir(PATH)))-1)
@@ -73,8 +74,6 @@ def import_pdf(pdfs,pbar,button):
 
                 return text
 
-            pdf = pdf
-            button.setText("Updating {} pdf data...".format(pdf))
             pdfDict.update({"title" : pdf.split('.pdf')[0]})
             pdfDict.update({"url" : PATH + pdf})
             pdfDict.update({"type" : "pdf"})

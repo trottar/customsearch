@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 04:00:06 trottar"
+# Time-stamp: "2022-01-05 13:14:30 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -22,12 +22,11 @@ import tools
 pd.set_option('display.max_colwidth', None)
 
         
-def import_bookmarks(inp_folder,pbar,button):
+def import_bookmarks(inp_folder,pbar):
     
     bookmarkDict = {}
     df = pd.DataFrame()
     for val in inp_folder:
-        button.setText("Updating {} bookmark data...".format(val))
         print("Importing data for bookmarks from {}...".format(val))
         for folder in chrome_bookmarks.folders:
             if val == folder.name:
@@ -41,6 +40,7 @@ def import_bookmarks(inp_folder,pbar,button):
                     #print("\t-> ",url.name.lower())
                     pbar.setMaximum(len(folder.urls)-1)
                     pbar.setValue(i)
+                    pbar.setFormat("Updating {0} bookmark data... {1:.0f}%".format(val,(i/len(folder.urls))*100))
                     QApplication.processEvents()
                     if len(folder.urls) > 1:
                         tools.progressBar(i, len(folder.urls)-1)

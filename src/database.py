@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-17 03:35:30 trottar"
+# Time-stamp: "2022-01-05 12:56:15 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -42,7 +42,7 @@ def databaseDict(*args):
     return databaseDict
 
 
-def create_database(pbar,layout,button,*args):
+def create_database(pbar,layout,*args):
     '''
     database="" # database dir name
     #url = 'https://www.youtube.com/playlist?list=PLW5jnpyxgQHX7i63VJ1LJEgHFHcL3G_QC' # Physics
@@ -63,16 +63,14 @@ def create_database(pbar,layout,button,*args):
             if key == 'bookmarks':
                 #print("bookmarks: ", importDict[dir][key])
                 bm_folder = importDict[dir][key]
-                b_df = bookmarks.import_bookmarks(bm_folder,pbar,button)
+                b_df = bookmarks.import_bookmarks(bm_folder,pbar)
             elif key == 'youtube':
                 #print("youtube: ", importDict[dir][key])
                 yt_folder = importDict[dir][key]
-                button.setText("Updating {} youtube data...".format(dir))
                 y_df = youtube.import_playlist(yt_folder,pbar)
             elif key == 'pdf':
-                #print("pdf: ", importDict[dir][key])
                 pdf_folder = importDict[dir][key]
-                p_df = pdf.import_pdf(pdf_folder,pbar,button)
+                p_df = pdf.import_pdf(pdf_folder,pbar)
             elif key == 'database':
                 #print("database: ", importDict[dir][key])
                 database = importDict[dir][key]

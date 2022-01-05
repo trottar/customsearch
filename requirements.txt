@@ -10,6 +10,8 @@ pdf2image==1.16.0
 pytesseract==0.3.8
 feedparser
 pylatexenc
+nltk
+networkx
 pyttsx3
 # Linux
 # For PyQt5 install, https://wiki.qt.io/Building_Qt_5_from_Git
