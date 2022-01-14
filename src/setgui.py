@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2022-01-05 13:09:42 trottar"
+# Time-stamp: "2022-01-13 07:31:28 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -94,12 +94,33 @@ class GUI(object):
         mainWindow.setDockOptions(_DOCK_OPTS)
         mainWindow.setWindowTitle("Custom Search");
         mainWindow.setWindowFlags(Qt.FramelessWindowHint)
-
+        
         mainWindow.mouseMoveEvent = self.mouseMoveEvent
         self.retranslateUi(mainWindow)
         QMetaObject.connectSlotsByName(mainWindow)
-
+        
         menuBar = mainWindow.menuBar()
+        closewidget = QWidget()
+        closewidget.setStyleSheet('''
+        QWidget {border-width: 0px;}
+        ''')
+        layout = QFormLayout()
+        
+        def minimize_pressed():
+            mainWindow.setWindowState(Qt.WindowMinimized)
+        
+        menuTopMinimizeButton = QPushButton()
+        menuTopCloseButton = QPushButton()
+        menuTopMinimizeButton.setStyleSheet("*{border-image: url(icons/normal.png);background-color: rgb(100, 150, 150);width: 14px;height: 14px;border:4px outset;  border-radius: 8px;}"":pressed{ border-image: url(icons/normal.png);background-color: rgb(150, 150, 150);border:2px outset;}"":hover{ border-image: url(icons/normal.png);background-color: rgb(150, 150, 150)};")
+        menuTopCloseButton.setStyleSheet("*{border-image: url(icons/close.png);background-color: rgb(100, 150, 150);width: 14px;height: 14px;border:4px outset;  border-radius: 8px;}"":pressed{ border-image: url(icons/close.png);background-color: rgb(150, 150, 150);border:2px outset;}"":hover{ border-image: url(icons/close.png);background-color: rgb(150, 150, 150);}")
+
+        menuTopMinimizeButton.clicked.connect(minimize_pressed)
+        menuTopCloseButton.clicked.connect(QApplication.instance().quit)
+        
+        layout.addRow(menuTopMinimizeButton,menuTopCloseButton)
+        menuBar.setCornerWidget(closewidget, Qt.TopRightCorner)
+        closewidget.setLayout(layout)
+        
         helpMenu = menuBar.addMenu("&Help")
         shortcutMenu = helpMenu.addMenu("Shortcuts")
         shortcutMenu.addAction("Quit:\tCtrl+q".expandtabs(35))
@@ -759,7 +780,9 @@ class MyWin(QMainWindow, GUI):
     
 def main(): 
    app = QApplication(sys.argv)
-   app.setStyle('WindowsVista')
+
+   trayIcon = QSystemTrayIcon(QIcon('icons/normal.png'), parent=app)
+   trayIcon.show()
    
    '''
    qp = QPalette()
@@ -769,9 +792,9 @@ def main():
    app.setPalette(qp)
    '''
 
-   #mainwindow = GUI.mainwindow()
    mainwindow = MyWin()
    mainwindow.show()
+   
    sys.exit(app.exec_())
 
 if __name__ == '__main__':

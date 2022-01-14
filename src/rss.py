@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2021-12-16 11:10:08 trottar"
+# Time-stamp: "2022-01-12 04:39:23 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -66,7 +66,10 @@ def import_rss():
         rssDict.update({"transcript" : ' '.join([line.strip().lower() for line in th_entry.summary.splitlines()])})
         rssDict = {k : rssDict[k] for k in sorted(rssDict.keys())}
         df = df.append(rssDict,ignore_index=True)
-        
+
+    # Removes duplicate entries
+    df.drop_duplicates(subset=['url'], inplace=True)
+    df = df.reset_index(drop=True)
         
     #print("-"*70)
     #print(df)
