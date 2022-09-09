@@ -3,7 +3,7 @@
 #
 # Description:
 # ================================================================
-# Time-stamp: "2022-01-05 13:14:30 trottar"
+# Time-stamp: "2022-07-24 15:59:13 trottar"
 # ================================================================
 #
 # Author:  Richard L. Trotta III <trotta@cua.edu>
@@ -37,7 +37,7 @@ def import_bookmarks(inp_folder,pbar):
                     with open('../database/log/database_titles.txt') as f:
                         if url.url in f.read():
                             continue
-                    #print("\t-> ",url.name.lower())
+                    print("\t-> ",url.name.lower())
                     pbar.setMaximum(len(folder.urls)-1)
                     pbar.setValue(i)
                     pbar.setFormat("Updating {0} bookmark data... {1:.0f}%".format(val,(i/len(folder.urls))*100))
